@@ -12,8 +12,10 @@ namespace MyBot
     {   
         //return list of the closest neutrals islands
         //check the distance in reverse but its the same (source -> dest = dest -> source)
-        public static List<Iceberg>GetClosestNeutral(Game game, Iceberg source_iceberg, Iceberg[] neutrals_islands){
-                return neutrals_islands.OrderBy(dest=>dest.GetTurnsTillArrival(source_iceberg)).ToList();
+        public static List<Iceberg>GetClosestNeutral(Game game, Iceberg source_iceberg){
+                return game.GetNeutralIcebergs().OrderBy(dest=>dest.GetTurnsTillArrival(source_iceberg)).ToList();
         }
+
+
     }
 }
