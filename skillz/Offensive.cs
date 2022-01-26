@@ -16,11 +16,17 @@ namespace MyBot
             var EnemyGroups = game.GetEnemyPenguinGroups();
             foreach(var group in EnemyGroups){
                 if(group.Destination == dest){
-                    attackingGroups.Append(group);
+                    System.Console.WriteLine($"kdkdkd");
+                    attackingGroups.Add(group);
                 }
             }
+                    System.Console.WriteLine($"attack count {attackingGroups.Count}");
+
             if(sorted){
-                return attackingGroups.
+                    attackingGroups.Sort((x, y) => x.TurnsTillArrival.CompareTo(y.TurnsTillArrival));
+                    return attackingGroups;
+
+
             }
             return attackingGroups;
         }

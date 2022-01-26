@@ -33,11 +33,8 @@ namespace MyBot
             {
                 foreach (var k in myIcebergs)
                 {
-                    int amountAfterUpgrde = k.PenguinAmount - k.UpgradeCost;
-                    int total ;
-                    foreach(var group in enemyPenguinsGroups){
-                        var dest = group.Destination;
-                        var enemyGroupAmount = group.PenguinAmount;
+                    if(Upgrade.SafeToUpgradeSimple(game,k)){
+                        k.Upgrade();
                     }
                 }
             }

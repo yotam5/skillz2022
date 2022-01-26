@@ -17,17 +17,28 @@ namespace MyBot
         {
             if(MyIceberg.CanUpgrade())
             {
-                var AttackingGroups = Offensive.GetAttackingGroups(game, MyIceberg);
+                var AttackingGroups = Offensive.GetAttackingGroups(game, MyIceberg,true);
                 int TotalAttackersCount = AttackingGroups.Sum(group=>group.PenguinAmount);
                 int UpgradeCost = MyIceberg.UpgradeCost;
                 int TotalInMyIsland = MyIceberg.PenguinAmount;
-                int AmontAfterUpgrading = TotalInMyIsland = UpgradeCost;
+                int AmountAfterUpgrading = TotalInMyIsland - UpgradeCost;
                 int IcebergGenerationAfterUpgrade = MyIceberg.PenguinsPerTurn + MyIceberg.UpgradeValue;
                 bool CanBeUpgraded = MyIceberg.CanUpgrade();
-                
-                if(AmontAfterUpgrading > TotalAttackersCount){
-
+                System.Console.WriteLine($"total in my island {TotalInMyIsland}");
+                System.Console.WriteLine($"total in my island after upgrade {AmountAfterUpgrading}");
+                System.Console.WriteLine($"total enemy to island {TotalAttackersCount}");
+                System.Console.WriteLine($"gen1 {MyIceberg.PenguinsPerTurn} gen2 {MyIceberg.UpgradeValue}");
+                int MyIcebergPenguinAmount = AmountAfterUpgrading;
+                foreach(var attackinGroup in AttackingGroups){
+                    int TurnsUntilArrival = attackinGroup.TurnsTillArrival;
+                    MyIcebergPenguinAmount += TurnsUntilArrival * IcebergGenerationAfterUpgrade;
+                    MyIcebergPenguinAmount -= attackinGroup.PenguinAmount;
+                    if(MyIcebergPenguinAmount <= 0){
+                        return false;
+                    }
                 }
+                return true;
+
             }
             return false;
         }
