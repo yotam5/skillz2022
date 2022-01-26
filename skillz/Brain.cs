@@ -22,11 +22,12 @@ namespace MyBot
             {
                 var nearestNeutral = Expand.GetClosestNeutral(game, myIcebergs[0])[0];
                 int amountToSend = nearestNeutral.PenguinAmount;
-                if (myIcebergs[0].PenguinAmount > amountToSend + 1)
+                if(Expand.SafeToSend(game,myIcebergs[0],amountToSend+1))
                 {
                     myIcebergs[0].SendPenguins(nearestNeutral, amountToSend + 1);
+
                 }
-                return;
+                else if(Upgrade.SafeToUpgradeSimple(game,myIcebergs[0]))
             }
 
             if (myIcebergs.Count() >= 2  )
