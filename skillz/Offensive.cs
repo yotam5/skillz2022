@@ -11,7 +11,7 @@ namespace MyBot
     public static class Offensive
     {
         //find groups attacking specific island and return list that contains them
-        public static List<PenguinGroup> findAttackingGroup(Game game,Iceberg dest){
+        public static List<PenguinGroup> GetAttackingGroups(Game game,Iceberg dest,bool sorted=true){
             List<PenguinGroup> attackingGroups = new List<PenguinGroup>();
             var EnemyGroups = game.GetEnemyPenguinGroups();
             foreach(var group in EnemyGroups){
@@ -19,8 +19,12 @@ namespace MyBot
                     attackingGroups.Append(group);
                 }
             }
+            if(sorted){
+                return attackingGroups.
+            }
             return attackingGroups;
         }
+
     }
     
 }
