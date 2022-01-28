@@ -6,9 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
+    <ItemGroup>
     <Reference Include="SkillzAutocomplete">
-      <HintPath>SkillzAutocomplete.dll</HintPath>
+        <HintPath>SkillzAutocomplete.dll</HintPath>
     </Reference>
-  </ItemGroup>
+    </ItemGroup>
 </Project>

@@ -37,6 +37,14 @@ namespace MyBot
             return true;
         }
 
+        //TODO: funciton that check if can send to multiple neutrals icebergs
+        public static List<Tuple<Iceberg,Iceberg,int>> ConqureNeutrals(Game game){
+            var myIcebergs = game.GetMyIcebergs();
+            var neutrals = game.GetNeutralIcebergs();
+            var GetMyPenguinGroups = game.GetMyPenguinGroups();
+
+            
+        }
 
     }
 }

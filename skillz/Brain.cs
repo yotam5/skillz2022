@@ -18,7 +18,8 @@ namespace MyBot
             PenguinGroup[] enemyPenguinsGroups = game.GetEnemyPenguinGroups();
             PenguinGroup[] myPenguinsGroup = game.GetMyPenguinGroups();
 
-            if (game.Turn == 1)
+            //TODO: send to multiple neutrals icebergs
+            if (game.Turn == 1)  
             {
                 var nearestNeutral = Expand.GetClosestNeutral(game, myIcebergs[0])[0];
                 int amountToSend = nearestNeutral.PenguinAmount;
@@ -27,15 +28,17 @@ namespace MyBot
                     myIcebergs[0].SendPenguins(nearestNeutral, amountToSend + 1);
 
                 }
-                else if(Upgrade.SafeToUpgradeSimple(game,myIcebergs[0]))
+                else if(Upgrade.SafeToUpgradeSimple(game,myIcebergs[0])){
+                    myIcebergs[0].Upgrade();
+                }
             }
 
             if (myIcebergs.Count() >= 2  )
             {
-                foreach (var k in myIcebergs)
+                foreach (var iceberg in myIcebergs)
                 {
-                    if(Upgrade.SafeToUpgradeSimple(game,k)){
-                        k.Upgrade();
+                    if(Upgrade.SafeToUpgradeSimple(game,iceberg)){
+                        iceberg.Upgrade();
                     }
                 }
             }

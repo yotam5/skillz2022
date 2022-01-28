@@ -9,15 +9,16 @@ namespace MyBot
     deals with offensive yandres
     */
     public static class Offensive
-    {
+    {   
+
         //find groups attacking specific island and return list that contains them
-        public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool sorted = true)
+        public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool enemy=true,  bool sorted = true)
         {
             List<PenguinGroup> attackingGroups = new List<PenguinGroup>();
-            var EnemyGroups = game.GetEnemyPenguinGroups();
+            var Groups = enemy ? game.GetEnemyPenguinGroups() : game.GetMyPenguinGroups();
 
             //loop over each enemy group and check if they are going to dest
-            foreach (var group in EnemyGroups) 
+            foreach (var group in Groups) 
             {
                 if (group.Destination == dest)
                 {
