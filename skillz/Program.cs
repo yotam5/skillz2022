@@ -10,6 +10,7 @@ namespace MyBot {
         /// </summary>
         /// <param name="game">the current game state</param>
         public void DoTurn (Game game) {
+            
             Brain.execute(game);            
         }
     }

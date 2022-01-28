@@ -33,6 +33,11 @@ namespace MyBot
                 }
             }
 
+            else 
+            {
+                Expand.ConqureNeutrals(game);
+            }
+            return ;
             if (myIcebergs.Count() >= 2  )
             {
                 foreach (var iceberg in myIcebergs)

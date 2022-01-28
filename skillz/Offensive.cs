@@ -14,7 +14,7 @@ namespace MyBot
         //find groups attacking specific island and return list that contains them
         public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool enemy=true,  bool sorted = true)
         {
-            List<PenguinGroup> attackingGroups = new List<PenguinGroup>();
+            var attackingGroups = new List<PenguinGroup>();
             var Groups = enemy ? game.GetEnemyPenguinGroups() : game.GetMyPenguinGroups();
 
             //loop over each enemy group and check if they are going to dest
