@@ -10,6 +10,11 @@ namespace MyBot
     */
     public static class Brain
     {
+
+        /// <summary>
+        /// execute brain
+        /// </summary>
+        /// <param name="game"></param>
         public static void execute(Game game)
         {
             Iceberg[] myIcebergs = game.GetMyIcebergs();
@@ -18,37 +23,24 @@ namespace MyBot
             PenguinGroup[] enemyPenguinsGroups = game.GetEnemyPenguinGroups();
             PenguinGroup[] myPenguinsGroup = game.GetMyPenguinGroups();
 
-            //TODO: send to multiple neutrals icebergs
-            if (game.Turn == 1)  
-            {
-                var nearestNeutral = Expand.GetClosestNeutral(game, myIcebergs[0])[0];
-                int amountToSend = nearestNeutral.PenguinAmount;
-                if(Expand.SafeToSend(game,myIcebergs[0],amountToSend+1))
-                {
-                    myIcebergs[0].SendPenguins(nearestNeutral, amountToSend + 1);
+            System.Console.WriteLine($"Game turn is {game.Turn}");
 
-                }
-                else if(Upgrade.SafeToUpgradeSimple(game,myIcebergs[0])){
-                    myIcebergs[0].Upgrade();
-                }
-            }
 
-            else 
+            if (game.Turn < 12)
             {
                 Expand.ConqureNeutrals(game);
             }
-            return ;
-            if (myIcebergs.Count() >= 2  )
+            else
             {
                 foreach (var iceberg in myIcebergs)
                 {
-                    if(Upgrade.SafeToUpgradeSimple(game,iceberg)){
+                    if (Upgrade.SafeToUpgradeSimple(game, iceberg))
+                    {
                         iceberg.Upgrade();
                     }
                 }
+                Expand.ConqureNeutrals(game);
             }
-
-
         }
     }
 

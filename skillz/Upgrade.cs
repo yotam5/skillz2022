@@ -10,10 +10,14 @@ namespace MyBot
     */
     public static class Upgrade
     {   
-        //check if island can be upgraded in the condition that 
-        //it wont be conquered in the given call,
-        //need to check also if there are near enemy islands
-        public static bool SafeToUpgradeSimple(Game game, Iceberg MyIceberg)
+        
+        /// <summary>
+        /// check if its safe to upgrade iceberg at a given turn
+        /// </summary>
+        /// <param name="game">game handler</param>
+        /// <param name="MyIceberg">iceberg to upgrade</param>
+        /// <returns>boolean value</returns>
+        public static bool SafeToUpgradeSimple(Game game, Iceberg MyIceberg) //NOTE: need to check if there are enemies nearby
         {
             if(MyIceberg.CanUpgrade())
             {
