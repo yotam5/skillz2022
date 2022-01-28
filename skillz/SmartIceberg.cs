@@ -56,6 +56,11 @@ namespace MyBot
             return this._iceberg.GetHashCode();
         }
 
+        public bool Equals(Iceberg obj)
+        {
+            return obj == this._iceberg;
+        }
+
         public void SendPenguins(Iceberg destination, int amount)
         {
             if(!this._upgraded){

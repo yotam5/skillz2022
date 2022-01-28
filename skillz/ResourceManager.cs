@@ -6,9 +6,10 @@ namespace MyBot {
     /// <summary>
     /// class to handle the game resources
     /// </summary>
-    public class ResourceManager
+    public sealed class ResourceManager
     {
-        private Dictionary<int,SmartIceberg> _myIcebergs;
+        //private Dictionary<int,SmartIceberg> _myIcebergs;
+        private List<SmartIceberg> _myIcebergs;
         private Game _gameHandler{get;}
 
         //TODO: update data when sending from iceberg?
@@ -23,11 +24,22 @@ namespace MyBot {
             
             //hash map of my icebergs
             var myIcebergs = this._gameHandler.GetMyIcebergs();
-            this._myIcebergs = new Dictionary<int, SmartIceberg>();
+            this._myIcebergs = new List<SmartIceberg>();
             foreach(var iceberg in myIcebergs)
             {
-                this._myIcebergs.Add(iceberg.UniqueId,new SmartIceberg(iceberg));
+                this._myIcebergs.Add(new SmartIceberg(iceberg));
             }
+        }
+
+
+        public List<SmartIceberg> GetMyIcebergsList()
+        {
+            return this._myIcebergs;
+        }
+
+        public SmartIceberg[] GetMyIcebergsArray()
+        {
+            return this._myIcebergs.ToArray();
         }
 
     }

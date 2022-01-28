@@ -88,9 +88,9 @@ namespace MyBot
         }
 
         //TODO: funciton that check if can send to multiple neutrals icebergs
-        public static void ConqureNeutrals(Game game, List<Iceberg> )
+        public static void ConqureNeutrals(Game game)
         {
-            var myIcebergs = game.GetMyIcebergs();
+            var myIcebergs = ();
             var neutrals = game.GetNeutralIcebergs();
 
             //TODO: if iceberg about to die to dispatch penguins

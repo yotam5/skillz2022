@@ -4,6 +4,7 @@ namespace MyBot {
     /// <summary>
     /// This is an example for a bot.
     /// </summary>
+    
     public class TutorialBot : ISkillzBot {
         /// <summary>
         /// Makes the bot run a single turn.
