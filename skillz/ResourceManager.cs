@@ -1,5 +1,6 @@
 using PenguinGame;
 
+
 namespace MyBot {
 
     /// <summary>
@@ -7,10 +8,10 @@ namespace MyBot {
     /// </summary>
     public class ResourceManager
     {
-        private Dictionary<int,Iceberg> _myIcebergs;
+        private Dictionary<int,SmartIceberg> _myIcebergs;
         private Game _gameHandler{get;}
 
-        //TODO: update data when sending from iceberg
+        //TODO: update data when sending from iceberg?
 
         /// <summary>
         /// resource manager constructor
@@ -21,13 +22,14 @@ namespace MyBot {
             this._gameHandler = game;
             
             //hash map of my icebergs
-            this._myIcebergs = this._gameHandler.GetMyIcebergs().ToDictionary(iceberg=>iceberg.UniqueId,Iceberg=>Iceberg);
-            Iceberg[] myIcebergs = game.GetMyIcebergs();
-            Iceberg[] neutralsIcbergs = game.GetNeutralIcebergs();
-            Iceberg[] enemyIcbergs = game.GetEnemyIcebergs();
-            PenguinGroup[] enemyPenguinsGroups = game.GetEnemyPenguinGroups();
-            PenguinGroup[] myPenguinsGroup = game.GetMyPenguinGroups();
+            var myIcebergs = this._gameHandler.GetMyIcebergs();
+            this._myIcebergs = new Dictionary<int, SmartIceberg>();
+            foreach(var iceberg in myIcebergs)
+            {
+                this._myIcebergs.Add(iceberg.UniqueId,new SmartIceberg(iceberg));
+            }
         }
+
     }
 
 }

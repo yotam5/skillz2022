@@ -10,7 +10,8 @@ namespace MyBot {
         /// </summary>
         /// <param name="game">the current game state</param>
         public void DoTurn (Game game) {
-            
+            var n = game.GetMyIcebergs()[0];
+            System.Console.WriteLine($"{n.Id}={n.UniqueId}={n.GetHashCode()}");
             Brain.execute(game);            
         }
     }
