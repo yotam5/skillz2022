@@ -46,9 +46,9 @@ namespace MyBot
             foreach (var neutralIceberg in neutralIcebergs)
             {
                 //TODO: fix this
-                if (Offensive.GetAttackingGroups(resourceManager, neutralIceberg, false).Count() > 0)
+                if (Defensive.GetAttackingGroups(resourceManager, neutralIceberg, false).Count() > 0)
                 {
-                    //var ff = Offensive.GetAttackingGroups(resourceManager, neutralIceberg, false);
+                    //var ff = Defensive.GetAttackingGroups(resourceManager, neutralIceberg, false);
 
                 }
                 double distance = 0;
@@ -83,7 +83,7 @@ namespace MyBot
             {
                 return false;
             }
-            var AttackingGroups = Offensive.GetAttackingGroups(resourceManager, source, true);
+            var AttackingGroups = Defensive.GetAttackingGroups(resourceManager, source, true);
             int GenerationRate = source.PenguinsPerTurn;
 
             int MyIcebergCounter = source.PenguinAmount - amountToSend;
@@ -107,8 +107,8 @@ namespace MyBot
             var neutralIcebergs = resourceManager.GetNeutralIcebergs();
             foreach(var iceberg in neutralIcebergs)
             {
-                //System.Console.WriteLine($"count of my attacker neutral {Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
-                if(Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count() == 0)
+                //System.Console.WriteLine($"count of my attacker neutral {Defensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
+                if(Defensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count() == 0)
                 {
                     freshNeutrals.Add(iceberg);
                 }
@@ -117,7 +117,7 @@ namespace MyBot
         }
 
 
-        //TODO: funciton that check if can send to multiple neutrals icebergs
+        //TODO: funciton that check if can send to multiple neutrals icebergs bruh what
         public static void ConqureNeutrals(ResourceManager resourceManager)
         {
             var myIcebergs = resourceManager.GetMyIcebergs();
@@ -160,6 +160,7 @@ namespace MyBot
             {
                 foreach (var c in data)
                 {
+                    System.Console.WriteLine($"c is {c.Item2.Id}");
                     System.Console.WriteLine($"iceberg sending {c.Item1.Id}");
                     c.Item1.SendPenguins(c.Item2, c.Item3);
                 }

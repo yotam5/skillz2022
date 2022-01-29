@@ -21,7 +21,7 @@ namespace MyBot
         {
             if(MyIceberg.CanUpgrade())
             {
-                var AttackingGroups = Offensive.GetAttackingGroups(resourceManager, MyIceberg);
+                var AttackingGroups = Defensive.GetAttackingGroups(resourceManager, MyIceberg);
                 int TotalAttackersCount = AttackingGroups.Sum(group=>group.PenguinAmount);
                 int UpgradeCost = MyIceberg.UpgradeCost;
                 int TotalInMyIceberg = MyIceberg.PenguinAmount;

@@ -23,6 +23,10 @@ namespace MyBot {
             get{return this._gameHandler.Turn;}
         }
 
+        public Player GetMyself()
+        {
+            return this._gameHandler.GetMyself();
+        }
 
         //TODO: update data when sending from iceberg?
 

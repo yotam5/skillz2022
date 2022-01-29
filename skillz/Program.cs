@@ -14,7 +14,12 @@ namespace MyBot {
             var resourceManager = new ResourceManager(game);
             //var n = game.GetMyIcebergs()[0];
             //System.Console.WriteLine($"{n.Id}={n.UniqueId}={n.GetHashCode()}");
-            Brain.execute(resourceManager);            
+
+            /*foreach(var c in Defensive.GetMyAttackedIcebergs(resourceManager))
+            {
+                Defensive.RiskEvaluation(resourceManager,c);
+            }*/
+            Brain.execute(resourceManager);
         }
     }
 }

@@ -20,22 +20,29 @@ namespace MyBot
             System.Console.WriteLine($"Game turn is {resourceManager.Turn}");
 
 
-            if (resourceManager.Turn < 10)
+            if (resourceManager.Turn == 1)
+            {
+                resourceManager.GetMyIcebergs()[0].Upgrade();
+            }
+            else if (resourceManager.Turn < 20)
             {
                 Expand.ConqureNeutrals(resourceManager);
+            }
+            else if (resourceManager.Turn < 32)
+            {
+                foreach (var c in resourceManager.GetMyIcebergs())
+                {
+                    if (Upgrade.SafeToUpgradeSimple(resourceManager, c))
+                    {
+                        c.Upgrade();
+                    }
+                }
             }
             else
             {
-                foreach (var iceberg in resourceManager.GetMyIcebergs())
-                {
-                    if (Upgrade.SafeToUpgradeSimple(resourceManager, iceberg))
-                    {
-                        iceberg.Upgrade();
-                    }
-                }
-                Expand.ConqureNeutrals(resourceManager);
+                Defensive.DefenseMehcanisem(resourceManager);
             }
+
         }
     }
-
 }

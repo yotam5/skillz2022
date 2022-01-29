@@ -30,6 +30,12 @@ namespace MyBot
         {
             get { return this._iceberg.PenguinAmount; }
         }
+
+        public Player Owner
+        {
+            get{return this._iceberg.Owner;}
+        }
+
         public int Level
         {
             get{return this._iceberg.Level;}
