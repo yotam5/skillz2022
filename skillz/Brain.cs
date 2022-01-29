@@ -24,15 +24,15 @@ namespace MyBot
             {
                 resourceManager.GetMyIcebergs()[0].Upgrade();
             }
-            else if (resourceManager.Turn < 20)
+            else if(resourceManager.Turn < 34)
             {
                 Expand.ConqureNeutrals(resourceManager);
             }
-            else if (resourceManager.Turn < 32)
+            else if(resourceManager.Turn < 58)
             {
-                foreach (var c in resourceManager.GetMyIcebergs())
+                foreach(var c in resourceManager.GetMyIcebergs())
                 {
-                    if (Upgrade.SafeToUpgradeSimple(resourceManager, c))
+                    if(c.CanUpgrade() && Upgrade.SafeToUpgradeSimple(resourceManager,c))
                     {
                         c.Upgrade();
                     }
@@ -42,7 +42,6 @@ namespace MyBot
             {
                 Defensive.DefenseMehcanisem(resourceManager);
             }
-
         }
     }
 }

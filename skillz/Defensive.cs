@@ -12,21 +12,24 @@ namespace MyBot
     {
 
 
+
         public static void DefenseMehcanisem(ResourceManager resourceManager)
         {
             var data = Defensive.GetMyAttackedIcebergs(resourceManager);
-            data.Sort((u1,u2)=>RiskEvaluation(resourceManager,u1).CompareTo(RiskEvaluation(resourceManager,u2)));
-            var tk = new List<(SmartIceberg,SmartIceberg,int)>();
-            if(data.Count() > 0)
+            data.Sort((u1, u2) => RiskEvaluation(resourceManager, u1.Item1).CompareTo(RiskEvaluation(resourceManager, u2.Item1)));
+            var tk = new List<(SmartIceberg, SmartIceberg, int)>();
+            if (data.Count() > 0)
             {
                 var selected = data[0];
-                int minimumToTakeOver = RiskEvaluation(resourceManager,selected);
-                if(minimumToTakeOver > 0){
+                int minimumToTakeOver = RiskEvaluation(resourceManager, selected.Item1);
+                if (minimumToTakeOver > 0)
+                {
                     return;
                 }
-                minimumToTakeOver*=-1;
-                foreach(var p in resourceManager.GetMyIcebergs()){
-                    if(p.UniqueId == selected.Item1.UniqueId)
+                minimumToTakeOver *= -1;
+                foreach (var p in resourceManager.GetMyIcebergs())
+                {
+                    if (p.UniqueId == selected.Item1.UniqueId)
                     {
                         continue;
                     }
@@ -41,7 +44,7 @@ namespace MyBot
                         startingAmount++;
                     }
                     System.Console.WriteLine($"min achived is {startingAmount}");
-                    tk.Add((p,selected.Item1, startingAmount));
+                    tk.Add((p, selected.Item1, startingAmount));
                     minimumToTakeOver -= startingAmount;
                 }
                 if (minimumToTakeOver <= 0)
@@ -57,34 +60,37 @@ namespace MyBot
         }
 
         public static int RiskEvaluation(ResourceManager resourceManager,
-            (SmartIceberg, List<PenguinGroup>, List<PenguinGroup>) data,
-            double lf = 1.0, double ldf = 1.0)
+            SmartIceberg target, bool upgrade = false
+            )
         {
-            double risk = 0;
+            //TODO: consider if close to upgraded iceberg os if by itself
+            var enemyPgToTarget = Defensive.GetAttackingGroups(resourceManager, target, true);
+            var myPgToTarget = Defensive.GetAttackingGroups(resourceManager, target, false);
 
-            int myIcebergPenguinAmount = data.Item1.PenguinAmount;
-            int penguinPerTurnRate = data.Item1.PenguinsPerTurn;
-            int level = data.Item1.Level;
+            int myIcebergPenguinAmount = target.PenguinAmount;
+            int penguinPerTurnRate = target.PenguinsPerTurn;
+            if(upgrade){penguinPerTurnRate+=target.UpgradeValue;}
+            int level = target.Level;
 
             int myIcebergCounter = myIcebergPenguinAmount;
             //TODO: sort all pg groups and do it by distance
             List<PenguinGroup> combinedGroups = new List<PenguinGroup>();
-            data.Item2.ForEach(pg => combinedGroups.Add(pg));
-            data.Item3.ForEach(pg => combinedGroups.Add(pg));
+            enemyPgToTarget.ForEach(pg => combinedGroups.Add(pg));
+            myPgToTarget.ForEach(pg => combinedGroups.Add(pg));
             combinedGroups.Sort((u1, u2) => u1.TurnsTillArrival.CompareTo(u2.TurnsTillArrival));
             foreach (var pg in combinedGroups) //NOTE: need to add neutral situatio
             {
                 bool myGp = pg.Owner.Equals(resourceManager.GetMyself());
                 int additionVector1 = myGp ? 1 : -1;
                 int additionVector2 = (myIcebergCounter > 0) ? 1 : -1;
-                myIcebergCounter += pg.PenguinAmount*additionVector1;
-                myIcebergCounter += penguinPerTurnRate * pg.TurnsTillArrival*additionVector2;
+                myIcebergCounter += pg.PenguinAmount * additionVector1;
+                myIcebergCounter += penguinPerTurnRate * pg.TurnsTillArrival * additionVector2;
             }
-            return myIcebergCounter;
-            //risk += myIcebergCounter;
             //System.Console.WriteLine($"ice {data.Item1.UniqueId} will be {myIcebergCounter}");
-            //return risk;
+            return myIcebergCounter;
         }
+
+
 
 
         /// <summary>
