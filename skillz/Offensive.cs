@@ -22,21 +22,21 @@ namespace MyBot
             foreach (var group in Groups) 
             {
                 try{
-            System.Console.WriteLine($"getattacking {Groups}");
+                    //System.Console.WriteLine($"getattacking {Groups}");
 
-                    System.Console.WriteLine($"group is {group}");
-                    System.Console.WriteLine($"dest is {dest.UniqueId} {dest.Id}");
+                    //System.Console.WriteLine($"group is {group}");
+                    //System.Console.WriteLine($"dest is {dest.UniqueId} {dest.Id}");
                 }
                 catch {
 
                 }
                 if (dest.Equals(group.Destination))
                 {
-                    System.Console.WriteLine($"free iceberg in {dest}");
+                    //System.Console.WriteLine($"free iceberg in {dest}");
                     attackingGroups.Add(group);
                 }
             }
-            System.Console.WriteLine($"attack count {attackingGroups.Count}");
+            //System.Console.WriteLine($"attack count {attackingGroups.Count}");
 
             if (sorted)
             {

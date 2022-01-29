@@ -24,19 +24,24 @@ namespace MyBot
 
         //return the closest neutral iceberg relativly to couple of other,
         //take in account the amount in each iceberg with the factor value
-        public static SmartIceberg GetClosestNeutral(ResourceManager resourceManager, List<SmartIceberg> icebergs,
-            bool newIceberg = true, double df = 1, double af = 0)
-        {
+        public static SmartIceberg GetClosestNeutral(ResourceManager resourceManager, SmartIceberg[] icebergs,
+            bool freshIceberg = true, double df = 1, double af = 0)
+        {   
             var neutralIcebergs =  Expand.GetFreshNeutralIcebergs(resourceManager);
+            if(!freshIceberg)
+            {
+                neutralIcebergs = resourceManager.GetNeutralIcebergs();
+            }
             foreach(var f in neutralIcebergs)
             {
-                System.Console.WriteLine($"fresh is {f}");
+                //System.Console.WriteLine($"fresh is {f}");
             }
             if(neutralIcebergs.Length == 0)
             {
-                System.Console.WriteLine("no neutral icebergs");
+                //System.Console.WriteLine("no neutral icebergs");
+                return new SmartIceberg();
             }
-            var closestIceberg = neutralIcebergs[0];
+            var closestIceberg = neutralIcebergs[0]; 
             double closestDistance = 9999.0;
             foreach (var neutralIceberg in neutralIcebergs)
             {
@@ -102,7 +107,7 @@ namespace MyBot
             var neutralIcebergs = resourceManager.GetNeutralIcebergs();
             foreach(var iceberg in neutralIcebergs)
             {
-                System.Console.WriteLine($"count of my attacker neutral {Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
+                //System.Console.WriteLine($"count of my attacker neutral {Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
                 if(Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count() == 0)
                 {
                     freshNeutrals.Add(iceberg);
@@ -111,49 +116,51 @@ namespace MyBot
             return freshNeutrals.ToArray();
         }
 
+
         //TODO: funciton that check if can send to multiple neutrals icebergs
         public static void ConqureNeutrals(ResourceManager resourceManager)
         {
             var myIcebergs = resourceManager.GetMyIcebergs();
-
             //TODO: if iceberg about to die to dispatch penguins
             // bool safeA = Expand.SafeToSend(resourceManager,iceberg,0);
 
-            var dest = Expand.GetClosestNeutral(resourceManager,myIcebergs.ToList(), true, 1, 1.5);
-            if(dest == null){
-                System.Console.WriteLine("no neutral icebergs");
+            var dest = Expand.GetClosestNeutral(resourceManager,myIcebergs, true, 1, 1.5);
+                
+            
+            if(dest._empty){
+                //System.Console.WriteLine("no neutral icebergs");
                 return;
             }
             var data = new List<(SmartIceberg, SmartIceberg, int)>();
 
-            int rquired_amount = dest.PenguinAmount + 1;
-            System.Console.WriteLine($"dest req amount {rquired_amount}, myc amont {myIcebergs.Length}");
-            int n = 0;
+            int minimumToTakeOver = dest.PenguinAmount + 1;
+            System.Console.WriteLine($"min to take over {minimumToTakeOver}");
+            //System.Console.WriteLine($"dest req amount {minimumToTakeOver}, myc amont {myIcebergs.Length}");
 
             foreach (var p in myIcebergs)
             {
-                if (rquired_amount > 0)
+                if (minimumToTakeOver > 0)
                 {
                     int startingAmount = 0;
                     bool safeToSend = Expand.SafeToSend(resourceManager, p, 0);
-                    if (!safeToSend)
+                    if (!safeToSend) //FIX?
                     {
                         continue;
                     }
-                    while (startingAmount < p.PenguinAmount && Expand.SafeToSend(resourceManager, p, startingAmount))
+                    while (Expand.SafeToSend(resourceManager, p, startingAmount) && startingAmount < minimumToTakeOver)
                     {
-                        startingAmount += 3;
-                        System.Console.WriteLine(n++);
+                        startingAmount++;
                     }
-                    startingAmount -= 3;
+                    System.Console.WriteLine($"min achived is {startingAmount}");
                     data.Add((p, dest, startingAmount));
-                    rquired_amount -= startingAmount;
+                    minimumToTakeOver -= startingAmount;
                 }
             }
-            if (rquired_amount < 0)
+            if (minimumToTakeOver <= 0)
             {
                 foreach (var c in data)
                 {
+                    System.Console.WriteLine($"iceberg sending {c.Item1.Id}");
                     c.Item1.SendPenguins(c.Item2, c.Item3);
                 }
             }

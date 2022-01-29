@@ -12,16 +12,27 @@ namespace MyBot
         private bool _sent;
 
         private bool _upgraded;
+        public bool _empty{get;}
         public SmartIceberg(Iceberg iceberg)
         {
             this._iceberg = iceberg;
             this._sent = false;
             this._upgraded = false;
+            this._empty = false;
+        }
+        public SmartIceberg()
+        {
+            this._iceberg = new Iceberg();
+            this._empty = true;
         }
 
         public int PenguinAmount
         {
             get { return this._iceberg.PenguinAmount; }
+        }
+        public int Level
+        {
+            get{return this._iceberg.Level;}
         }
 
         public int PenguinsPerTurn
@@ -61,7 +72,7 @@ namespace MyBot
 
         public bool Equals (Iceberg obj)
         {
-            System.Console.WriteLine($"{obj} id is {obj.UniqueId}, iceberg {this._iceberg} id is {this._iceberg.UniqueId}");
+           // System.Console.WriteLine($"{obj} id is {obj.UniqueId}, iceberg {this._iceberg} id is {this._iceberg.UniqueId}");
             return this._iceberg.Equals(obj);
         }
 

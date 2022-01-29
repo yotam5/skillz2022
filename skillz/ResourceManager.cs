@@ -12,6 +12,9 @@ namespace MyBot {
         private SmartIceberg[] _myIcebergs;
 
         private SmartIceberg[] _neutralIcebergs;
+        public int neutralIcebergsCount{get{return this._neutralIcebergs.Length;}}
+        public int enemyIcebergsCount{get{return this._enemyIcebergs.Length;}}
+        public int myIcebergsCount{get{return this._myIcebergs.Length;}}
         private SmartIceberg[] _enemyIcebergs;
         private Game _gameHandler{get;}
 
@@ -19,6 +22,7 @@ namespace MyBot {
         {
             get{return this._gameHandler.Turn;}
         }
+
 
         //TODO: update data when sending from iceberg?
 

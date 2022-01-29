@@ -29,10 +29,10 @@ namespace MyBot
                 int IcebergGenerationAfterUpgrade = MyIceberg.PenguinsPerTurn + MyIceberg.UpgradeValue;
                 bool CanBeUpgraded = MyIceberg.CanUpgrade();
 
-                System.Console.WriteLine($"total in my island {TotalInMyIceberg}");
-                System.Console.WriteLine($"total in my island after upgrade {AmountAfterUpgrading}");
-                System.Console.WriteLine($"total enemy to island {TotalAttackersCount}");
-                System.Console.WriteLine($"gen1 {MyIceberg.PenguinsPerTurn} gen2 {MyIceberg.UpgradeValue}");
+                //System.Console.WriteLine($"total in my island {TotalInMyIceberg}");
+                //System.Console.WriteLine($"total in my island after upgrade {AmountAfterUpgrading}");
+                //System.Console.WriteLine($"total enemy to island {TotalAttackersCount}");
+                //System.Console.WriteLine($"gen1 {MyIceberg.PenguinsPerTurn} gen2 {MyIceberg.UpgradeValue}");
                 
                 int MyIcebergPenguinAmount = AmountAfterUpgrading;
 

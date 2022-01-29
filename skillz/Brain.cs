@@ -20,7 +20,7 @@ namespace MyBot
             System.Console.WriteLine($"Game turn is {resourceManager.Turn}");
 
 
-            if (resourceManager.Turn < 12)
+            if (resourceManager.Turn < 10)
             {
                 Expand.ConqureNeutrals(resourceManager);
             }
