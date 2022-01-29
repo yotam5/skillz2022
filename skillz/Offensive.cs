@@ -21,8 +21,18 @@ namespace MyBot
             //loop over each enemy group and check if they are going to dest
             foreach (var group in Groups) 
             {
+                try{
+            System.Console.WriteLine($"getattacking {Groups}");
+
+                    System.Console.WriteLine($"group is {group}");
+                    System.Console.WriteLine($"dest is {dest.UniqueId} {dest.Id}");
+                }
+                catch {
+
+                }
                 if (dest.Equals(group.Destination))
                 {
+                    System.Console.WriteLine($"free iceberg in {dest}");
                     attackingGroups.Add(group);
                 }
             }

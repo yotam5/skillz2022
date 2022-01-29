@@ -27,15 +27,24 @@ namespace MyBot
         public static SmartIceberg GetClosestNeutral(ResourceManager resourceManager, List<SmartIceberg> icebergs,
             bool newIceberg = true, double df = 1, double af = 0)
         {
-            var neutralIcebergs = resourceManager.GetNeutralIcebergs();
-            SmartIceberg closestIceberg = icebergs[0];
+            var neutralIcebergs =  Expand.GetFreshNeutralIcebergs(resourceManager);
+            foreach(var f in neutralIcebergs)
+            {
+                System.Console.WriteLine($"fresh is {f}");
+            }
+            if(neutralIcebergs.Length == 0)
+            {
+                System.Console.WriteLine("no neutral icebergs");
+            }
+            var closestIceberg = neutralIcebergs[0];
             double closestDistance = 9999.0;
             foreach (var neutralIceberg in neutralIcebergs)
             {
                 //TODO: fix this
                 if (Offensive.GetAttackingGroups(resourceManager, neutralIceberg, false).Count() > 0)
                 {
-                    continue;
+                    //var ff = Offensive.GetAttackingGroups(resourceManager, neutralIceberg, false);
+
                 }
                 double distance = 0;
                 foreach (var iceberg in icebergs) //NOTE: maybe the closest is dull with penguins
@@ -87,11 +96,25 @@ namespace MyBot
             return true;
         }
 
+        public static SmartIceberg[] GetFreshNeutralIcebergs(ResourceManager resourceManager)
+        {
+            var freshNeutrals = new List<SmartIceberg>();
+            var neutralIcebergs = resourceManager.GetNeutralIcebergs();
+            foreach(var iceberg in neutralIcebergs)
+            {
+                System.Console.WriteLine($"count of my attacker neutral {Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
+                if(Offensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count() == 0)
+                {
+                    freshNeutrals.Add(iceberg);
+                }
+            }
+            return freshNeutrals.ToArray();
+        }
+
         //TODO: funciton that check if can send to multiple neutrals icebergs
         public static void ConqureNeutrals(ResourceManager resourceManager)
         {
             var myIcebergs = resourceManager.GetMyIcebergs();
-            var neutrals = resourceManager.GetNeutralIcebergs();
 
             //TODO: if iceberg about to die to dispatch penguins
             // bool safeA = Expand.SafeToSend(resourceManager,iceberg,0);

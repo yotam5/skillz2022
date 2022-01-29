@@ -70,7 +70,7 @@ namespace MyBot {
             return this._gameHandler.GetMyPenguinGroups();
         }
 
-        
+
         public SmartIceberg[] GetNeutralIcebergs()
         {
             return this._neutralIcebergs;

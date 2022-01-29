@@ -59,9 +59,10 @@ namespace MyBot
             return this._iceberg.GetHashCode();
         }
 
-        public bool Equals(SmartIceberg obj)
+        public bool Equals (Iceberg obj)
         {
-            return obj._iceberg == this._iceberg;
+            System.Console.WriteLine($"{obj} id is {obj.UniqueId}, iceberg {this._iceberg} id is {this._iceberg.UniqueId}");
+            return this._iceberg.Equals(obj);
         }
 
         public void SendPenguins(SmartIceberg destination, int amount)
@@ -96,6 +97,15 @@ namespace MyBot
             return this._iceberg.GetTurnsTillArrival(destination._iceberg);
         }
 
+        public int Id
+        {
+            get{return this._iceberg.Id;}
+        }
+
+        public int UniqueId
+        {
+            get{return this._iceberg.UniqueId;}
+        }
 
     }
 
