@@ -68,39 +68,6 @@ namespace MyBot
         }
 
 
-
-        //TODO: need to make it more complex, what if enemy iceberg are nearby
-        /// <summary>
-        /// check if its safe to send a specific amount of penguins at a given turn
-        /// </summary>
-        /// <param name="game">game handler</param>
-        /// <param name="source">source to send from</param>
-        /// <param name="amountToSend">amount of penguins to send</param>
-        /// <returns>boolean value</returns>
-        public static bool SafeToSend(ResourceManager resourceManager, SmartIceberg source, int amountToSend)
-        {
-            if (amountToSend >= source.PenguinAmount)
-            {
-                return false;
-            }
-            var AttackingGroups = Defensive.GetAttackingGroups(resourceManager, source, true);
-            int GenerationRate = source.PenguinsPerTurn;
-
-            int MyIcebergCounter = source.PenguinAmount - amountToSend;
-
-            foreach (var attackingGroup in AttackingGroups)
-            {
-                MyIcebergCounter += source.PenguinsPerTurn * attackingGroup.TurnsTillArrival;
-                MyIcebergCounter -= attackingGroup.PenguinAmount;
-                if (MyIcebergCounter <= 0)
-                { //NOTE: neutral maybe good dependse
-                    return false;
-                }
-
-            }
-            return true;
-        }
-
         public static SmartIceberg[] GetFreshNeutralIcebergs(ResourceManager resourceManager)
         {
             var freshNeutrals = new List<SmartIceberg>();
@@ -142,12 +109,12 @@ namespace MyBot
                 if (minimumToTakeOver > 0)
                 {
                     int startingAmount = 0;
-                    bool safeToSend = Expand.SafeToSend(resourceManager, p, 0);
+                    bool safeToSend = Defensive.RiskEvaluation(resourceManager, p) > 0;
                     if (!safeToSend) //FIX?
                     {
                         continue;
                     }
-                    while (Expand.SafeToSend(resourceManager, p, startingAmount) && startingAmount < minimumToTakeOver)
+                    while (Defensive.RiskEvaluation(resourceManager, p, additionalAmount: -startingAmount) > 0 && startingAmount < minimumToTakeOver)
                     {
                         startingAmount++;
                     }

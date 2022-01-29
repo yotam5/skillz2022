@@ -32,7 +32,7 @@ namespace MyBot
             {
                 foreach(var c in resourceManager.GetMyIcebergs())
                 {
-                    if(c.CanUpgrade() && Upgrade.SafeToUpgradeSimple(resourceManager,c))
+                    if(c.CanUpgrade() && Defensive.RiskEvaluation(resourceManager,c,upgrade: true) > 0)
                     {
                         c.Upgrade();
                     }
@@ -40,6 +40,13 @@ namespace MyBot
             }
             else
             {
+                foreach(var c in resourceManager.GetMyIcebergs())
+                {
+                    if(c.CanUpgrade() && Defensive.RiskEvaluation(resourceManager,c,upgrade: true) > 0)
+                    {
+                        c.Upgrade();
+                    }
+                }
                 Defensive.DefenseMehcanisem(resourceManager);
             }
         }

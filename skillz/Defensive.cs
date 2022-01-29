@@ -11,8 +11,6 @@ namespace MyBot
     public static class Defensive
     {
 
-
-
         public static void DefenseMehcanisem(ResourceManager resourceManager)
         {
             var data = Defensive.GetMyAttackedIcebergs(resourceManager);
@@ -34,12 +32,12 @@ namespace MyBot
                         continue;
                     }
                     int startingAmount = 0;
-                    bool safeToSend = Expand.SafeToSend(resourceManager, p, 0);
+                    bool safeToSend = Defensive.RiskEvaluation(resourceManager, p) > 0;
                     if (!safeToSend) //FIX?
                     {
                         continue;
                     }
-                    while (Expand.SafeToSend(resourceManager, p, startingAmount) && startingAmount < minimumToTakeOver)
+                    while (Defensive.RiskEvaluation(resourceManager, p, additionalAmount: -startingAmount) > 0&& startingAmount < minimumToTakeOver)
                     {
                         startingAmount++;
                     }
@@ -59,8 +57,16 @@ namespace MyBot
             }
         }
 
+        /// <summary>
+        /// check if iceberg will be conqured at a given turn and its near future i guess
+        /// </summary>
+        /// <param name="resourceManager"></param>
+        /// <param name="target">targeted SmartIceberg</param>
+        /// <param name="upgrade">check if iceberg is safe when upgraded</param>
+        /// <param name="additionalAmount">change the amount on the iceberg</param>
+        /// <returns>signed integer</returns>
         public static int RiskEvaluation(ResourceManager resourceManager,
-            SmartIceberg target, bool upgrade = false
+            SmartIceberg target, bool upgrade = false, int additionalAmount = 0
             )
         {
             //TODO: consider if close to upgraded iceberg os if by itself
@@ -69,10 +75,10 @@ namespace MyBot
 
             int myIcebergPenguinAmount = target.PenguinAmount;
             int penguinPerTurnRate = target.PenguinsPerTurn;
-            if(upgrade){penguinPerTurnRate+=target.UpgradeValue;}
+            if (upgrade) { penguinPerTurnRate += target.UpgradeValue; }
             int level = target.Level;
 
-            int myIcebergCounter = myIcebergPenguinAmount;
+            int myIcebergCounter = myIcebergPenguinAmount + additionalAmount;
             //TODO: sort all pg groups and do it by distance
             List<PenguinGroup> combinedGroups = new List<PenguinGroup>();
             enemyPgToTarget.ForEach(pg => combinedGroups.Add(pg));
@@ -89,8 +95,6 @@ namespace MyBot
             //System.Console.WriteLine($"ice {data.Item1.UniqueId} will be {myIcebergCounter}");
             return myIcebergCounter;
         }
-
-
 
 
         /// <summary>
