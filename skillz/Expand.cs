@@ -16,24 +16,24 @@ namespace MyBot
         /// <param name="game">game handler</param>
         /// <param name="source_iceberg">source iceberg for comparision</param>
         /// <returns>List<Iceberg></returns>
-        public static List<Iceberg> GetClosestNeutral(Game game, Iceberg source_iceberg, double df=1, double af=0)
+        public static List<Iceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df=1, double af=0)
         {
-            return game.GetNeutralIcebergs().OrderBy(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
+            return resourceManager.GetNeutralIcebergs().OrderBy(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
         }
 
 
         //return the closest neutral iceberg relativly to couple of other,
         //take in account the amount in each iceberg with the factor value
-        public static Iceberg GetClosestNeutral(Game game, List<Iceberg> icebergs,
+        public static Iceberg GetClosestNeutral(ResourceManager resourceManager, List<Iceberg> icebergs,
             bool newIceberg = true, double df = 1, double af = 0)
         {
-            var neutralIcebergs = game.GetNeutralIcebergs();
+            var neutralIcebergs = resourceManager.GetNeutralIcebergs();
             Iceberg closestIceberg = icebergs[0];
             double closestDistance = 9999.0;
             foreach (var neutralIceberg in neutralIcebergs)
             {
                 //TODO: fix this
-                if (Offensive.GetAttackingGroups(game, neutralIceberg, false).Count() > 0)
+                if (Offensive.GetAttackingGroups(resourceManager, neutralIceberg, false).Count() > 0)
                 {
                     continue;
                 }
@@ -90,7 +90,7 @@ namespace MyBot
         //TODO: funciton that check if can send to multiple neutrals icebergs
         public static void ConqureNeutrals(Game game)
         {
-            var myIcebergs = ();
+            var myIcebergs = game.GetMyIcebergs();
             var neutrals = game.GetNeutralIcebergs();
 
             //TODO: if iceberg about to die to dispatch penguins

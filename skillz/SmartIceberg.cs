@@ -2,8 +2,11 @@ using PenguinGame;
 
 namespace MyBot
 {
-
-    public class SmartIceberg
+    
+    //TODO: verify actions that can be initiated only on my icebergs indicate when action taken on wrong iceberg
+    //TODO: to contain information about what groups are coming to the iceberg
+    //TODO: take action if in danger?
+    public class SmartIceberg 
     {
         private Iceberg _iceberg;
         private bool _sent;
@@ -46,9 +49,9 @@ namespace MyBot
             get{return this._iceberg.UpgradeValue;}
         }
 
-        public bool CanUpgrade
+        public bool CanUpgrade()
         {
-            get{return this._iceberg.CanUpgrade();}
+            return this._iceberg.CanUpgrade();
         }
 
         public override int GetHashCode()
@@ -56,16 +59,16 @@ namespace MyBot
             return this._iceberg.GetHashCode();
         }
 
-        public bool Equals(Iceberg obj)
+        public bool Equals(SmartIceberg obj)
         {
-            return obj == this._iceberg;
+            return obj._iceberg == this._iceberg;
         }
 
-        public void SendPenguins(Iceberg destination, int amount)
+        public void SendPenguins(SmartIceberg destination, int amount)
         {
             if(!this._upgraded){
                 this._sent = true;
-                this._iceberg.SendPenguins(destination,amount);
+                this._iceberg.SendPenguins(destination._iceberg,amount);
             }
             else{
                 System.Console.WriteLine("trying to send penguins when iceberg upgraded");
@@ -84,10 +87,11 @@ namespace MyBot
             }
         }
 
-        public int GetTurnsTillArrival(Iceberg destination)
+        public int GetTurnsTillArrival(SmartIceberg destination)
         {
-            return this._iceberg.GetTurnsTillArrival(destination);
+            return this._iceberg.GetTurnsTillArrival(destination._iceberg);
         }
+
 
     }
 

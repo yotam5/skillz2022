@@ -15,14 +15,8 @@ namespace MyBot
         /// execute brain
         /// </summary>
         /// <param name="game"></param>
-        public static void execute(Game game)
+        public static void execute(Game game,ResourceManager resourceManager)
         {
-            Iceberg[] myIcebergs = game.GetMyIcebergs();
-            Iceberg[] neutralsIcbergs = game.GetNeutralIcebergs();
-            Iceberg[] enemyIcbergs = game.GetEnemyIcebergs();
-            PenguinGroup[] enemyPenguinsGroups = game.GetEnemyPenguinGroups();
-            PenguinGroup[] myPenguinsGroup = game.GetMyPenguinGroups();
-
             System.Console.WriteLine($"Game turn is {game.Turn}");
 
 
@@ -32,7 +26,7 @@ namespace MyBot
             }
             else
             {
-                foreach (var iceberg in myIcebergs)
+                foreach (var iceberg in resourceManager.GetMyIcebergsArray())
                 {
                     if (Upgrade.SafeToUpgradeSimple(game, iceberg))
                     {

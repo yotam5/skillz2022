@@ -17,11 +17,11 @@ namespace MyBot
         /// <param name="game">game handler</param>
         /// <param name="MyIceberg">iceberg to upgrade</param>
         /// <returns>boolean value</returns>
-        public static bool SafeToUpgradeSimple(Game game, Iceberg MyIceberg) //NOTE: need to check if there are enemies nearby
+        public static bool SafeToUpgradeSimple(ResourceManager resourceManager, SmartIceberg MyIceberg) //NOTE: need to check if there are enemies nearby
         {
             if(MyIceberg.CanUpgrade())
             {
-                var AttackingGroups = Offensive.GetAttackingGroups(game, MyIceberg);
+                var AttackingGroups = Offensive.GetAttackingGroups(resourceManager, MyIceberg);
                 int TotalAttackersCount = AttackingGroups.Sum(group=>group.PenguinAmount);
                 int UpgradeCost = MyIceberg.UpgradeCost;
                 int TotalInMyIceberg = MyIceberg.PenguinAmount;

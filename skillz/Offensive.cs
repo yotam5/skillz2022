@@ -12,15 +12,16 @@ namespace MyBot
     {   
 
         //find groups attacking specific island and return list that contains them
-        public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool enemy=true,  bool sorted = true)
+
+        public static List<PenguinGroup> GetAttackingGroups<T>(ResourceManager resourceManager, T dest, bool enemy=true,  bool sorted = true)
         {
             var attackingGroups = new List<PenguinGroup>();
-            var Groups = enemy ? game.GetEnemyPenguinGroups() : game.GetMyPenguinGroups();
+            var Groups = enemy ? resourceManager.GetEnemyPenguinGroups() : resourceManager.GetMyPenguinGroups();
 
             //loop over each enemy group and check if they are going to dest
             foreach (var group in Groups) 
             {
-                if (group.Destination == dest)
+                if (dest.Equals(group.Destination))
                 {
                     attackingGroups.Add(group);
                 }
