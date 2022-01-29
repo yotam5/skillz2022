@@ -19,36 +19,35 @@ namespace MyBot
         {
             System.Console.WriteLine($"Game turn is {resourceManager.Turn}");
 
-
-            if (resourceManager.Turn == 1)
-            {
+            if(resourceManager.Turn == 1){
                 resourceManager.GetMyIcebergs()[0].Upgrade();
             }
-            else if(resourceManager.Turn < 34)
+
+            if(resourceManager.GetMyIcebergs().Count() < 3 && resourceManager.Turn < 25)
             {
                 Expand.ConqureNeutrals(resourceManager);
             }
-            else if(resourceManager.Turn < 58)
-            {
+
+            else if(resourceManager.CountIcebergLevelMine(2).Count() < 3 && resourceManager.Turn < 60){
                 foreach(var c in resourceManager.GetMyIcebergs())
                 {
-                    if(c.CanUpgrade() && Defensive.RiskEvaluation(resourceManager,c,upgrade: true) > 0)
+                    if(Defensive.RiskEvaluation(resourceManager,c,true) > 0)
                     {
-                        c.Upgrade();
+                        if(c.CanUpgrade()){
+                            c.Upgrade();
+                        }
                     }
                 }
             }
             else
             {
-                foreach(var c in resourceManager.GetMyIcebergs())
-                {
-                    if(c.CanUpgrade() && Defensive.RiskEvaluation(resourceManager,c,upgrade: true) > 0)
-                    {
-                        c.Upgrade();
-                    }
-                }
                 Defensive.DefenseMehcanisem(resourceManager);
+                Expand.ConqureNeutrals(resourceManager);
+                Offensive.QuickAttack(resourceManager);
             }
+
+
         }
+
     }
 }

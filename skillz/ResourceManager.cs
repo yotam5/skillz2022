@@ -1,5 +1,7 @@
 using PenguinGame;
-
+using System.Text;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MyBot {
 
@@ -29,6 +31,7 @@ namespace MyBot {
         }
 
         //TODO: update data when sending from iceberg?
+    
 
         /// <summary>
         /// resource manager constructor
@@ -68,6 +71,12 @@ namespace MyBot {
             index = 0;
         }
 
+        public List<SmartIceberg> CountIcebergLevelMine(int lvl=1){
+                var lvlCount = (from ice in this.GetMyIcebergs()
+                           where ice.Level == lvl
+                           select ice).ToList();
+            return lvlCount;
+        }
         public PenguinGroup[] GetEnemyPenguinGroups()
         {
             return this._gameHandler.GetEnemyPenguinGroups();

@@ -1,4 +1,7 @@
 using PenguinGame;
+using System.Text;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace MyBot
 {
@@ -12,6 +15,7 @@ namespace MyBot
         private bool _sent;
 
         private bool _upgraded;
+        public bool upgraded{get{return this._upgraded;}}
         public bool _empty{get;}
         public SmartIceberg(Iceberg iceberg)
         {
@@ -84,8 +88,10 @@ namespace MyBot
 
         public void SendPenguins(SmartIceberg destination, int amount)
         {
-            if(!this._upgraded){
-                this._sent = true;
+            if(amount <= 0){
+                System.Console.WriteLine("you cant send negative nor zero pg");
+            }
+            if(this._iceberg.CanSendPenguins(destination._iceberg,amount)){
                 this._iceberg.SendPenguins(destination._iceberg,amount);
             }
             else{
@@ -93,8 +99,13 @@ namespace MyBot
             }
         }
 
+        public bool CanSendPenguins(SmartIceberg dest,int amount)
+        {
+            return this._iceberg.CanSendPenguins(dest._iceberg,amount);
+        }
+
         public void Upgrade(){
-            if(!this._sent)
+            if(this._iceberg.CanUpgrade())
             {
                 this._upgraded = true;
                 this._iceberg.Upgrade();

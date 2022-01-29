@@ -13,8 +13,14 @@ namespace MyBot
 
         public static void DefenseMehcanisem(ResourceManager resourceManager)
         {
+
+            System.Console.WriteLine('A');
             var data = Defensive.GetMyAttackedIcebergs(resourceManager);
             data.Sort((u1, u2) => RiskEvaluation(resourceManager, u1.Item1).CompareTo(RiskEvaluation(resourceManager, u2.Item1)));
+            foreach(var c in data){
+                System.Console.WriteLine($"{c.Item1.UniqueId}");
+            }
+            System.Console.WriteLine();
             var tk = new List<(SmartIceberg, SmartIceberg, int)>();
             if (data.Count() > 0)
             {
@@ -22,21 +28,25 @@ namespace MyBot
                 int minimumToTakeOver = RiskEvaluation(resourceManager, selected.Item1);
                 if (minimumToTakeOver > 0)
                 {
+                    System.Console.WriteLine("exiting defnese");
                     return;
                 }
                 minimumToTakeOver *= -1;
                 foreach (var p in resourceManager.GetMyIcebergs())
                 {
-                    if (p.UniqueId == selected.Item1.UniqueId)
-                    {
-                        continue;
-                    }
                     int startingAmount = 0;
-                    bool safeToSend = Defensive.RiskEvaluation(resourceManager, p) > 0;
-                    if (!safeToSend) //FIX?
+                    int safeToSend = Defensive.RiskEvaluation(resourceManager, p) ;
+                    System.Console.WriteLine($"safetosend is {safeToSend}");
+                    if(p.upgraded)
+                    {
+                        System.Console.WriteLine("ice already did upgrde can send");
+                        continue;
+                    }
+                    if (safeToSend < 0) //FIX?
                     {
                         continue;
                     }
+                    System.Console.WriteLine('B');
                     while (Defensive.RiskEvaluation(resourceManager, p, additionalAmount: -startingAmount) > 0&& startingAmount < minimumToTakeOver)
                     {
                         startingAmount++;
@@ -54,6 +64,12 @@ namespace MyBot
                         c.Item1.SendPenguins(c.Item2, c.Item3);
                     }
                 }
+                    System.Console.WriteLine('C');
+
+            }
+            else
+            {
+                System.Console.WriteLine("no iceberg to protect");
             }
         }
 
@@ -93,6 +109,8 @@ namespace MyBot
                 myIcebergCounter += penguinPerTurnRate * pg.TurnsTillArrival * additionVector2;
             }
             //System.Console.WriteLine($"ice {data.Item1.UniqueId} will be {myIcebergCounter}");
+                        System.Console.WriteLine('F');
+
             return myIcebergCounter;
         }
 

@@ -16,7 +16,7 @@ namespace MyBot
         /// <param name="game">game handler</param>
         /// <param name="source_iceberg">source iceberg for comparision</param>
         /// <returns>List<Iceberg></returns>
-        public static List<SmartIceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df=1, double af=0)
+        public static List<SmartIceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df = 1, double af = 0)
         {
             return resourceManager.GetNeutralIcebergs().OrderBy(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
         }
@@ -26,22 +26,22 @@ namespace MyBot
         //take in account the amount in each iceberg with the factor value
         public static SmartIceberg GetClosestNeutral(ResourceManager resourceManager, SmartIceberg[] icebergs,
             bool freshIceberg = true, double df = 1, double af = 0)
-        {   
-            var neutralIcebergs =  Expand.GetFreshNeutralIcebergs(resourceManager);
-            if(!freshIceberg)
+        {
+            var neutralIcebergs = Expand.GetFreshNeutralIcebergs(resourceManager);
+            if (!freshIceberg)
             {
                 neutralIcebergs = resourceManager.GetNeutralIcebergs();
             }
-            foreach(var f in neutralIcebergs)
+            foreach (var f in neutralIcebergs)
             {
                 //System.Console.WriteLine($"fresh is {f}");
             }
-            if(neutralIcebergs.Length == 0)
+            if (neutralIcebergs.Length == 0)
             {
                 //System.Console.WriteLine("no neutral icebergs");
                 return new SmartIceberg();
             }
-            var closestIceberg = neutralIcebergs[0]; 
+            var closestIceberg = neutralIcebergs[0];
             double closestDistance = 9999.0;
             foreach (var neutralIceberg in neutralIcebergs)
             {
@@ -72,10 +72,10 @@ namespace MyBot
         {
             var freshNeutrals = new List<SmartIceberg>();
             var neutralIcebergs = resourceManager.GetNeutralIcebergs();
-            foreach(var iceberg in neutralIcebergs)
+            foreach (var iceberg in neutralIcebergs)
             {
                 //System.Console.WriteLine($"count of my attacker neutral {Defensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count()}");
-                if(Defensive.GetAttackingGroups(resourceManager,iceberg,false,false).Count() == 0)
+                if (Defensive.GetAttackingGroups(resourceManager, iceberg, false, false).Count() == 0)
                 {
                     freshNeutrals.Add(iceberg);
                 }
@@ -91,10 +91,11 @@ namespace MyBot
             //TODO: if iceberg about to die to dispatch penguins
             // bool safeA = Expand.SafeToSend(resourceManager,iceberg,0);
 
-            var dest = Expand.GetClosestNeutral(resourceManager,myIcebergs, true, 1, 1.5);
-                
-            
-            if(dest._empty){
+            var dest = Expand.GetClosestNeutral(resourceManager, myIcebergs, true, 1, 1.5);
+
+
+            if (dest._empty)
+            {
                 //System.Console.WriteLine("no neutral icebergs");
                 return;
             }
@@ -106,6 +107,10 @@ namespace MyBot
 
             foreach (var p in myIcebergs)
             {
+                if (p.upgraded)
+                {
+                    System.Console.WriteLine("iceberg upgradedcant sent"); continue;
+                }
                 if (minimumToTakeOver > 0)
                 {
                     int startingAmount = 0;
@@ -114,10 +119,14 @@ namespace MyBot
                     {
                         continue;
                     }
+                                System.Console.WriteLine('D');
+
                     while (Defensive.RiskEvaluation(resourceManager, p, additionalAmount: -startingAmount) > 0 && startingAmount < minimumToTakeOver)
                     {
                         startingAmount++;
                     }
+                                System.Console.WriteLine('E');
+
                     System.Console.WriteLine($"min achived is {startingAmount}");
                     data.Add((p, dest, startingAmount));
                     minimumToTakeOver -= startingAmount;
