@@ -15,25 +15,25 @@ namespace MyBot
         /// execute brain
         /// </summary>
         /// <param name="game"></param>
-        public static void execute(Game game,ResourceManager resourceManager)
+        public static void execute(ResourceManager resourceManager)
         {
-            System.Console.WriteLine($"Game turn is {game.Turn}");
+            System.Console.WriteLine($"Game turn is {resourceManager.Turn}");
 
 
-            if (game.Turn < 12)
+            if (resourceManager.Turn < 12)
             {
-                Expand.ConqureNeutrals(game);
+                Expand.ConqureNeutrals(resourceManager);
             }
             else
             {
-                foreach (var iceberg in resourceManager.GetMyIcebergsArray())
+                foreach (var iceberg in resourceManager.GetMyIcebergs())
                 {
-                    if (Upgrade.SafeToUpgradeSimple(game, iceberg))
+                    if (Upgrade.SafeToUpgradeSimple(resourceManager, iceberg))
                     {
                         iceberg.Upgrade();
                     }
                 }
-                Expand.ConqureNeutrals(game);
+                Expand.ConqureNeutrals(resourceManager);
             }
         }
     }

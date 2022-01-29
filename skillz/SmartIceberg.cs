@@ -89,6 +89,10 @@ namespace MyBot
 
         public int GetTurnsTillArrival(SmartIceberg destination)
         {
+            if(destination == null){
+                System.Console.WriteLine("error null instance");
+                return -1;
+            }
             return this._iceberg.GetTurnsTillArrival(destination._iceberg);
         }
 

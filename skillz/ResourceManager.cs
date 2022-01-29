@@ -44,7 +44,7 @@ namespace MyBot {
             var neutralIceberg = this._gameHandler.GetNeutralIcebergs();
             this._neutralIcebergs = new SmartIceberg[neutralIceberg.Length];
             
-            foreach(var iceberg in myIcebergs)
+            foreach(var iceberg in neutralIceberg)
             {
                 this._neutralIcebergs[index++] = new SmartIceberg(iceberg);
             }
@@ -57,7 +57,6 @@ namespace MyBot {
             {
                 this._enemyIcebergs[index++] = new SmartIceberg(iceberg);
             }
-            
             index = 0;
         }
 
@@ -84,7 +83,7 @@ namespace MyBot {
 
         public SmartIceberg[] GetMyIcebergs()
         {
-            return this._myIcebergs.ToArray();
+            return this._myIcebergs;
         }
 
     }

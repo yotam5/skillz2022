@@ -13,7 +13,7 @@ namespace MyBot
 
         //find groups attacking specific island and return list that contains them
 
-        public static List<PenguinGroup> GetAttackingGroups<T>(ResourceManager resourceManager, T dest, bool enemy=true,  bool sorted = true)
+        public static List<PenguinGroup> GetAttackingGroups(ResourceManager resourceManager, SmartIceberg dest, bool enemy=true,  bool sorted = true)
         {
             var attackingGroups = new List<PenguinGroup>();
             var Groups = enemy ? resourceManager.GetEnemyPenguinGroups() : resourceManager.GetMyPenguinGroups();

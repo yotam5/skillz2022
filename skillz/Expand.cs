@@ -16,7 +16,7 @@ namespace MyBot
         /// <param name="game">game handler</param>
         /// <param name="source_iceberg">source iceberg for comparision</param>
         /// <returns>List<Iceberg></returns>
-        public static List<Iceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df=1, double af=0)
+        public static List<SmartIceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df=1, double af=0)
         {
             return resourceManager.GetNeutralIcebergs().OrderBy(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
         }
@@ -24,11 +24,11 @@ namespace MyBot
 
         //return the closest neutral iceberg relativly to couple of other,
         //take in account the amount in each iceberg with the factor value
-        public static Iceberg GetClosestNeutral(ResourceManager resourceManager, List<Iceberg> icebergs,
+        public static SmartIceberg GetClosestNeutral(ResourceManager resourceManager, List<SmartIceberg> icebergs,
             bool newIceberg = true, double df = 1, double af = 0)
         {
             var neutralIcebergs = resourceManager.GetNeutralIcebergs();
-            Iceberg closestIceberg = icebergs[0];
+            SmartIceberg closestIceberg = icebergs[0];
             double closestDistance = 9999.0;
             foreach (var neutralIceberg in neutralIcebergs)
             {
@@ -63,13 +63,13 @@ namespace MyBot
         /// <param name="source">source to send from</param>
         /// <param name="amountToSend">amount of penguins to send</param>
         /// <returns>boolean value</returns>
-        public static bool SafeToSend(Game game, Iceberg source, int amountToSend)
+        public static bool SafeToSend(ResourceManager resourceManager, SmartIceberg source, int amountToSend)
         {
             if (amountToSend >= source.PenguinAmount)
             {
                 return false;
             }
-            var AttackingGroups = Offensive.GetAttackingGroups(game, source, true);
+            var AttackingGroups = Offensive.GetAttackingGroups(resourceManager, source, true);
             int GenerationRate = source.PenguinsPerTurn;
 
             int MyIcebergCounter = source.PenguinAmount - amountToSend;
@@ -88,17 +88,20 @@ namespace MyBot
         }
 
         //TODO: funciton that check if can send to multiple neutrals icebergs
-        public static void ConqureNeutrals(Game game)
+        public static void ConqureNeutrals(ResourceManager resourceManager)
         {
-            var myIcebergs = game.GetMyIcebergs();
-            var neutrals = game.GetNeutralIcebergs();
+            var myIcebergs = resourceManager.GetMyIcebergs();
+            var neutrals = resourceManager.GetNeutralIcebergs();
 
             //TODO: if iceberg about to die to dispatch penguins
-            // bool safeA = Expand.SafeToSend(game,iceberg,0);
+            // bool safeA = Expand.SafeToSend(resourceManager,iceberg,0);
 
-            var dest = Expand.GetClosestNeutral(game, myIcebergs.ToList(), true, 1, 1.5);
-
-            var data = new List<(Iceberg, Iceberg, int)>();
+            var dest = Expand.GetClosestNeutral(resourceManager,myIcebergs.ToList(), true, 1, 1.5);
+            if(dest == null){
+                System.Console.WriteLine("no neutral icebergs");
+                return;
+            }
+            var data = new List<(SmartIceberg, SmartIceberg, int)>();
 
             int rquired_amount = dest.PenguinAmount + 1;
             System.Console.WriteLine($"dest req amount {rquired_amount}, myc amont {myIcebergs.Length}");
@@ -109,12 +112,12 @@ namespace MyBot
                 if (rquired_amount > 0)
                 {
                     int startingAmount = 0;
-                    bool safeToSend = Expand.SafeToSend(game, p, 0);
+                    bool safeToSend = Expand.SafeToSend(resourceManager, p, 0);
                     if (!safeToSend)
                     {
                         continue;
                     }
-                    while (startingAmount < p.PenguinAmount && Expand.SafeToSend(game, p, startingAmount))
+                    while (startingAmount < p.PenguinAmount && Expand.SafeToSend(resourceManager, p, startingAmount))
                     {
                         startingAmount += 3;
                         System.Console.WriteLine(n++);
