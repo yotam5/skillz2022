@@ -18,7 +18,7 @@ namespace MyBot
         /// <returns>List<Iceberg></returns>
         public static List<SmartIceberg> GetClosestNeutral(ResourceManager resourceManager, SmartIceberg source_iceberg, double df = 1, double af = 0)
         {
-            return resourceManager.GetNeutralIcebergs().OrderBy(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
+            return resourceManager.GetNeutralIcebergs().OrderByDescending(dest => dest.GetTurnsTillArrival(source_iceberg)).ToList();
         }
 
 
@@ -96,7 +96,7 @@ namespace MyBot
 
             if (dest._empty)
             {
-                //System.Console.WriteLine("no neutral icebergs");
+                System.Console.WriteLine("no neutral icebergs");
                 return;
             }
             var data = new List<(SmartIceberg, SmartIceberg, int)>();
@@ -110,6 +110,9 @@ namespace MyBot
                 if (p.upgraded)
                 {
                     System.Console.WriteLine("iceberg upgradedcant sent"); continue;
+                }
+                if(p.CanUpgrade()){
+                    p.Upgrade();
                 }
                 if (minimumToTakeOver > 0)
                 {

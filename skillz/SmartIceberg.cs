@@ -90,8 +90,9 @@ namespace MyBot
         {
             if(amount <= 0){
                 System.Console.WriteLine("you cant send negative nor zero pg");
+                return;
             }
-            if(this._iceberg.CanSendPenguins(destination._iceberg,amount)){
+            if(this._iceberg.CanSendPenguins(destination._iceberg,amount) && !this._upgraded){
                 this._iceberg.SendPenguins(destination._iceberg,amount);
             }
             else{
@@ -105,7 +106,7 @@ namespace MyBot
         }
 
         public void Upgrade(){
-            if(this._iceberg.CanUpgrade())
+            if(this._iceberg.CanUpgrade() && !this._iceberg.AlreadyActed)
             {
                 this._upgraded = true;
                 this._iceberg.Upgrade();

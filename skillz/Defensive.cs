@@ -82,7 +82,7 @@ namespace MyBot
         /// <param name="additionalAmount">change the amount on the iceberg</param>
         /// <returns>signed integer</returns>
         public static int RiskEvaluation(ResourceManager resourceManager,
-            SmartIceberg target, bool upgrade = false, int additionalAmount = 0
+            SmartIceberg target, bool upgrade = false, int additionalAmount = 1
             )
         {
             //TODO: consider if close to upgraded iceberg os if by itself
@@ -100,17 +100,28 @@ namespace MyBot
             enemyPgToTarget.ForEach(pg => combinedGroups.Add(pg));
             myPgToTarget.ForEach(pg => combinedGroups.Add(pg));
             combinedGroups.Sort((u1, u2) => u1.TurnsTillArrival.CompareTo(u2.TurnsTillArrival));
-            foreach (var pg in combinedGroups) //NOTE: need to add neutral situatio
-            {
-                bool myGp = pg.Owner.Equals(resourceManager.GetMyself());
-                int additionVector1 = myGp ? 1 : -1;
-                int additionVector2 = (myIcebergCounter > 0) ? 1 : -1;
-                myIcebergCounter += pg.PenguinAmount * additionVector1;
-                myIcebergCounter += penguinPerTurnRate * pg.TurnsTillArrival * additionVector2;
-            }
-            //System.Console.WriteLine($"ice {data.Item1.UniqueId} will be {myIcebergCounter}");
-                        System.Console.WriteLine('F');
 
+            for (;combinedGroups.Count() > 0;) //NOTE: need to add neutral situatio
+            {
+                int closeDistance = combinedGroups[0].TurnsTillArrival;
+                combinedGroups.ForEach(pgk=>pgk.TurnsTillArrival-=closeDistance);
+                var arrived = (from pgk in combinedGroups where pgk.TurnsTillArrival == 0 select pgk).ToList();
+                for (int i = arrived.Count(); i > 0; i--, combinedGroups.RemoveAt(0)) ;
+                foreach(var pkg in arrived)
+                {
+                    if(myIcebergCounter > 0)
+                    {
+                        myIcebergCounter += penguinPerTurnRate * closeDistance ;
+                    }
+                    else {
+                            myIcebergCounter -= penguinPerTurnRate * closeDistance ;
+                    }
+                    myIcebergCounter += (pkg.Owner.Equals(resourceManager.GetMyself())) ? pkg.PenguinAmount : -pkg.PenguinAmount;
+                }
+
+            }
+            System.Console.WriteLine($"ice {target.UniqueId} will be {myIcebergCounter}");
+            System.Console.WriteLine('F');
             return myIcebergCounter;
         }
 

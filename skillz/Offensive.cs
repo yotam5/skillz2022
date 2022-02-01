@@ -23,10 +23,10 @@ namespace MyBot
                     int enemyAmount = k.PenguinAmount;
                     int distance = k.GetTurnsTillArrival(c);
                     enemyAmount+=distance * k.PenguinsPerTurn;
-                    enemyAmount += 3;
+                    enemyAmount += 1;
                     if(c.PenguinAmount > enemyAmount)
                     {
-                        if(c.CanSendPenguins(k,enemyAmount+3) && Defensive.RiskEvaluation(resourceManager,c,additionalAmount: -enemyAmount) > 0)
+                        if(c.CanSendPenguins(k,enemyAmount) && Defensive.RiskEvaluation(resourceManager,c,additionalAmount: -enemyAmount) > 0)
                         {
                             c.SendPenguins(k,enemyAmount);
                         }
@@ -40,7 +40,7 @@ namespace MyBot
             var enemyIcebergs = resourceManager.GetEnemyIcebergs().ToList();
             var myIcebergs = resourceManager.GetMyIcebergs().ToList();
             enemyIcebergs.Sort((u1, u2) =>
-                (u1.PenguinAmount * fa - u1.Level * lf).CompareTo(u2.PenguinAmount * fa - u2.Level * lf)
+                (u1.PenguinAmount * fa + u1.Level * lf).CompareTo(u2.PenguinAmount * fa + u2.Level * lf)
             );
             var choosen = enemyIcebergs[0];
             int minimumToTakeOver = choosen.PenguinAmount + 4;

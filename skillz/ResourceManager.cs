@@ -72,6 +72,7 @@ namespace MyBot {
         }
 
         public List<SmartIceberg> CountIcebergLevelMine(int lvl=1){
+            System.Console.WriteLine("nlp33");
                 var lvlCount = (from ice in this.GetMyIcebergs()
                            where ice.Level == lvl
                            select ice).ToList();
