@@ -5,180 +5,201 @@ using System.Linq;
 
 namespace MyBot
 {
-    /// <summary>
-    /// iceberg defenese mechanisem
-    /// </summary>
     public static class Defensive
     {
-
-        public static void DefenseMehcanisem(ResourceManager resourceManager)
-        {
-
-            System.Console.WriteLine('A');
-            var data = Defensive.GetMyAttackedIcebergs(resourceManager);
-            data.Sort((u1, u2) => RiskEvaluation(resourceManager, u1.Item1).CompareTo(RiskEvaluation(resourceManager, u2.Item1)));
-            foreach(var c in data){
-                System.Console.WriteLine($"{c.Item1.UniqueId}");
-            }
-            System.Console.WriteLine();
-            var tk = new List<(SmartIceberg, SmartIceberg, int)>();
-            if (data.Count() > 0)
-            {
-                var selected = data[0];
-                int minimumToTakeOver = RiskEvaluation(resourceManager, selected.Item1);
-                if (minimumToTakeOver > 0)
-                {
-                    System.Console.WriteLine("exiting defnese");
-                    return;
-                }
-                minimumToTakeOver *= -1;
-                foreach (var p in resourceManager.GetMyIcebergs())
-                {
-                    int startingAmount = 0;
-                    int safeToSend = Defensive.RiskEvaluation(resourceManager, p) ;
-                    System.Console.WriteLine($"safetosend is {safeToSend}");
-                    if(p.upgraded)
-                    {
-                        System.Console.WriteLine("ice already did upgrde can send");
-                        continue;
-                    }
-                    if (safeToSend < 0) //FIX?
-                    {
-                        continue;
-                    }
-                    System.Console.WriteLine('B');
-                    while (Defensive.RiskEvaluation(resourceManager, p, additionalAmount: -startingAmount) > 0&& startingAmount < minimumToTakeOver)
-                    {
-                        startingAmount++;
-                    }
-                    System.Console.WriteLine($"min achived is {startingAmount}");
-                    tk.Add((p, selected.Item1, startingAmount));
-                    minimumToTakeOver -= startingAmount;
-                }
-                if (minimumToTakeOver <= 0)
-                {
-                    foreach (var c in tk)
-                    {
-                        System.Console.WriteLine($"c is {c.Item2.Id}");
-                        System.Console.WriteLine($"iceberg sending {c.Item1.Id}");
-                        c.Item1.SendPenguins(c.Item2, c.Item3);
-                    }
-                }
-                    System.Console.WriteLine('C');
-
-            }
-            else
-            {
-                System.Console.WriteLine("no iceberg to protect");
-            }
-        }
-
         /// <summary>
-        /// check if iceberg will be conqured at a given turn and its near future i guess
+        /// 
         /// </summary>
-        /// <param name="resourceManager"></param>
-        /// <param name="target">targeted SmartIceberg</param>
-        /// <param name="upgrade">check if iceberg is safe when upgraded</param>
-        /// <param name="additionalAmount">change the amount on the iceberg</param>
-        /// <returns>signed integer</returns>
-        public static int RiskEvaluation(ResourceManager resourceManager,
-            SmartIceberg target, bool upgrade = false, int additionalAmount = 1
-            )
+        /// <param name="game"></param>
+        /// <param name="iceberg"></param>
+        /// <param name="upgrade"></param>
+        /// <param name="addition">int, negative value to send</param>
+        /// <returns></returns>
+        public static List<(int, int)> HelpIcebergData(Game game, Iceberg iceberg, bool upgrade = false, int addition = 0)
         {
-            //TODO: consider if close to upgraded iceberg os if by itself
-            var enemyPgToTarget = Defensive.GetAttackingGroups(resourceManager, target, true);
-            var myPgToTarget = Defensive.GetAttackingGroups(resourceManager, target, false);
+            var enemyPgToTarget = Defensive.GetAttackingGroups(game, iceberg);
+            var myPgToTarget = Defensive.GetAttackingGroups(game, iceberg, false);
+            List<int[]> combinedData = new List<int[]>();
+            List<(int, int)> result = new List<(int, int)>();
+            Player myPlayer = game.GetMyself();
+            int penguinPerTurnRate = iceberg.PenguinsPerTurn;
+            //int icebergLevel = iceberg.Level;
 
-            int myIcebergPenguinAmount = target.PenguinAmount;
-            int penguinPerTurnRate = target.PenguinsPerTurn;
-            if (upgrade) { penguinPerTurnRate += target.UpgradeValue; }
-            int level = target.Level;
+            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; }
 
-            int myIcebergCounter = myIcebergPenguinAmount + additionalAmount;
-            //TODO: sort all pg groups and do it by distance
-            List<PenguinGroup> combinedGroups = new List<PenguinGroup>();
-            enemyPgToTarget.ForEach(pg => combinedGroups.Add(pg));
-            myPgToTarget.ForEach(pg => combinedGroups.Add(pg));
-            combinedGroups.Sort((u1, u2) => u1.TurnsTillArrival.CompareTo(u2.TurnsTillArrival));
+            enemyPgToTarget.ForEach(pg => combinedData.Add(new int[] { -pg.PenguinAmount, pg.TurnsTillArrival }));
+            myPgToTarget.ForEach(pg => combinedData.Add(new int[] { pg.PenguinAmount, pg.TurnsTillArrival }));
+            combinedData.Sort((u1, u2) => u1[1].CompareTo(u2[1]));
 
-            for (;combinedGroups.Count() > 0;) //NOTE: need to add neutral situatio
+            int sumCloseDistance = 0;
+            int myIcebergCounter = iceberg.PenguinAmount;
+
+
+            while (combinedData.Count() > 0)
             {
-                int closeDistance = combinedGroups[0].TurnsTillArrival;
-                combinedGroups.ForEach(pgk=>pgk.TurnsTillArrival-=closeDistance);
-                var arrived = (from pgk in combinedGroups where pgk.TurnsTillArrival == 0 select pgk).ToList();
-                for (int i = arrived.Count(); i > 0; i--, combinedGroups.RemoveAt(0)) ;
-                foreach(var pkg in arrived)
+                int closestDistance = combinedData[0][1];
+                sumCloseDistance += closestDistance;
+                foreach (var pg in combinedData)
                 {
-                    if(myIcebergCounter > 0)
-                    {
-                        myIcebergCounter += penguinPerTurnRate * closeDistance ;
-                    }
-                    else {
-                            myIcebergCounter -= penguinPerTurnRate * closeDistance ;
-                    }
-                    myIcebergCounter += (pkg.Owner.Equals(resourceManager.GetMyself())) ? pkg.PenguinAmount : -pkg.PenguinAmount;
+                    pg[1] -= closestDistance;
+                }
+                var arrived = (from pg in combinedData where pg[1] == 0 select pg[0]).ToList();
+                for (int i = arrived.Count(); i > 0; i--, combinedData.RemoveAt(0)) ;
+                int sumArrived = arrived.Sum();
+                myIcebergCounter += penguinPerTurnRate * closestDistance + sumArrived;
+                if (myIcebergCounter <= 0)
+                {
+                    result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));
+                    game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
                 }
 
             }
-            System.Console.WriteLine($"ice {target.UniqueId} will be {myIcebergCounter}");
-            System.Console.WriteLine('F');
-            return myIcebergCounter;
+
+            return result;
         }
 
 
-        /// <summary>
-        /// return icebergs that are attacked by enemy with pg groups who are targeting it, Item2-my pg, Item3-enemy pg
-        /// </summary>
-        /// <param name="resourceManager"></param>
-        public static List<(SmartIceberg, List<PenguinGroup>, List<PenguinGroup>)> GetMyAttackedIcebergs(ResourceManager resourceManager)
+        public static List<(Iceberg, List<(int, int)>)> IcebergsInDangers(Game game)
         {
-            var myIcebergs = resourceManager.GetMyIcebergs();
-            var data = new List<(SmartIceberg, List<PenguinGroup>, List<PenguinGroup>)>();
+            var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
+            foreach (var iceberg in game.GetMyIcebergs())
+            {
+                var helpData = Defensive.HelpIcebergData(game, iceberg);
+                if (helpData.Count() > 0)
+                {
+                    icebergsInDanger.Add((iceberg, helpData));
+                }
+            }
+            return icebergsInDanger;
+        }
+
+        public static List<Iceberg> DefendeIcebergs(Game game)
+        {
+
+            var icebergsInDanger = Defensive.IcebergsInDangers(game);
+            var succeded = new List<Iceberg>();
+            if (icebergsInDanger.Count() > 0)
+            {
+                icebergsInDanger.OrderByDescending(x=>Defensive.IcebergPriority(game, x.Item1)); //NOTE
+
+                foreach (var icebergInDangerData in icebergsInDanger)
+                {
+                    var iceToDefend = icebergInDangerData.Item1;
+                    var defendeData = icebergInDangerData.Item2;
+
+                    foreach (var data in defendeData)
+                    {
+                        int neededAmount = data.Item1;
+                        int timeToDeliver = data.Item2;
+                        var possibleDefenders = new List<Iceberg>();
+                        foreach (var myIceberg in game.GetMyIcebergs())
+                        {
+                            if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver)
+                            {
+                                //bruh
+                                int sumEnemyGroups = game.GetEnemyPenguinGroups().Sum(pg => (pg.Destination.Equals(myIceberg) ? pg.PenguinAmount : 0));
+
+                                if (myIceberg.PenguinAmount - sumEnemyGroups > 20)
+                                {
+                                    possibleDefenders.Add(myIceberg);
+                                }
+                            }
+                        }
+                        if (possibleDefenders.Count() > 0)
+                        {
+                            int sumDefenders = possibleDefenders.Sum(defender => defender.PenguinAmount);
+                            if (sumDefenders >= neededAmount)
+                            {
+                                succeded.Add(iceToDefend);
+                                foreach (var ice in possibleDefenders)
+                                {
+                                    double ratio = (double)ice.PenguinAmount / sumDefenders;
+                                    int amountToSend = (int)(ratio * neededAmount) + 1;
+                                    if (ice.PenguinAmount < amountToSend)
+                                    {
+                                        amountToSend--;
+                                    }
+                                    ice.SendPenguins(iceToDefend, amountToSend);
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        return succeded;
+        }
+
+
+
+        public static List<Iceberg> GetMyAttackedIcebergs(Game game) //the fuck
+        {
+            var myIcebergs = game.GetMyIcebergs();
+            var data = new List<Iceberg>();
             foreach (var iceberg in myIcebergs)
             {
-                var enemyAttackingGroups = Defensive.GetAttackingGroups(resourceManager, iceberg, true, true);
-                var myAttackingGroups = Defensive.GetAttackingGroups(resourceManager, iceberg, false, true);
-                data.Add((iceberg, myAttackingGroups, enemyAttackingGroups));
+                var enemyAttackingGroups = Defensive.GetAttackingGroups(game, iceberg, true, true);
+                var myAttackingGroups = Defensive.GetAttackingGroups(game, iceberg, false, true);
             }
             return data;
+        }
+
+        public static int AverageDistanceFromMyIcebergs(Game game, Iceberg exlude)
+        {
+            var myIcebergs = game.GetMyIcebergs();
+            if(myIcebergs.Length == 1){
+                return 0;
+            }
+            int totalDistance = 0;
+            foreach (var iceberg in myIcebergs)
+            {
+                if (!iceberg.Equals(exlude))
+                {
+                    totalDistance += iceberg.GetTurnsTillArrival(exlude);
+                }
+            }
+            //System.Console.WriteLine($"averag my {totalDistance/myIcebergs.Length} for {exlude}");
+            return (totalDistance / (myIcebergs.Length - 1));
+        }
+
+        public static int AverageDistanceFromEnemyIcebergs(Game game, Iceberg iceberg)
+        {
+            int totalDistance = 0;
+            var enemyIcebergs = game.GetEnemyIcebergs();
+            if(enemyIcebergs.Length == 0){return 0;}
+            foreach(var enemyIceberg in enemyIcebergs){
+                totalDistance += enemyIceberg.GetTurnsTillArrival(iceberg);
+            }
+            //System.Console.WriteLine($" average enemy {totalDistance/enemyIcebergs.Length} for {iceberg}");
+            return totalDistance/enemyIcebergs.Length;
 
         }
 
-
-        /// <summary>
-        /// find groups that targeting specific iceberg
-        /// </summary>
-        /// <param name="resourceManager">Resourcehandler</param>
-        /// <param name="dest">groups destination</param>
-        /// <param name="enemy">my groups or enemy groups</param>
-        /// <param name="sorted">boolean if sorting by distance</param>
-        /// <returns>List<PenguinGroup></returns>
-        public static List<PenguinGroup> GetAttackingGroups(ResourceManager resourceManager, SmartIceberg dest, bool enemy = true, bool sorted = true)
+        public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool enemy = true, bool sorted = true)
         {
             var attackingGroups = new List<PenguinGroup>();
-            var Groups = enemy ? resourceManager.GetEnemyPenguinGroups() : resourceManager.GetMyPenguinGroups();
+            var Groups = enemy ? game.GetEnemyPenguinGroups() : game.GetMyPenguinGroups();
 
-            //loop over each enemy group and check if they are going to dest
             foreach (var group in Groups)
             {
                 if (dest.Equals(group.Destination))
                 {
-                    //System.Console.WriteLine($"free iceberg in {dest}");
                     attackingGroups.Add(group);
                 }
             }
-            //System.Console.WriteLine($"attack count {attackingGroups.Count}");
 
             if (sorted)
             {
-                //sort the groups by asending order, probably
                 attackingGroups.Sort((x, y) => x.TurnsTillArrival.CompareTo(y.TurnsTillArrival));
-                return attackingGroups;
             }
             return attackingGroups;
         }
 
+    
+        public static double IcebergPriority(Game game, Iceberg iceberg, int fl = 20)
+        {
+            if(game.GetMyIcebergs().Length == 1){return 0;}
+            return iceberg.PenguinAmount + iceberg.PenguinsPerTurn * fl - AverageDistanceFromMyIcebergs(game, iceberg);
+        }
     }
-
-
 }
