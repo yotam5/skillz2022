@@ -14,7 +14,7 @@ namespace MyBot
         {
             int turnsTillArrival = myIceberg.GetTurnsTillArrival(enemyIceberg);
             int amount = enemyIceberg.PenguinAmount + enemyIceberg.PenguinsPerTurn * turnsTillArrival;
-            /*foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+            foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
             {
                 if(enemyPg.TurnsTillArrival <= turnsTillArrival)
                 {
@@ -26,7 +26,7 @@ namespace MyBot
                 if(myPg.TurnsTillArrival <= turnsTillArrival){
                     amount -= myPg.PenguinAmount;
                 }
-            }*/
+            }
             System.Console.WriteLine($"at iceberg {enemyIceberg} at turn {turnsTillArrival} will be {amount}");
             return amount;
         }

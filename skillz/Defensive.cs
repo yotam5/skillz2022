@@ -76,7 +76,7 @@ namespace MyBot
         {
 
             var icebergsInDanger = Defensive.IcebergsInDangers(game);
-            var succeded = new List<Iceberg>(); //probably
+            var succeded = new List<Iceberg>(); //probably?
             if (icebergsInDanger.Count() > 0)
             {
                 icebergsInDanger.OrderByDescending(x=>Defensive.IcebergPriority(game, x.Item1)); 
@@ -123,10 +123,17 @@ namespace MyBot
                             }
                         }
                     }
-
                 }
             }
         return succeded;
+        }
+
+
+        public static void EvacuateIceberg(Game game,Iceberg myIceberg) //! fixme not good bruh
+        {
+            var myIces = game.GetMyIcebergs().ToList();
+            myIces.OrderBy(x=>x.GetTurnsTillArrival(myIceberg));
+            myIceberg.SendPenguins(myIces.First(),myIceberg.PenguinAmount);
         }
 
 
