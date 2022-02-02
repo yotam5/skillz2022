@@ -55,7 +55,7 @@ namespace MyBot
 
                     if(bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1)) //! fix  this
                     {
-                        bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);            
+                        bestMove.Item1.SendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);            
                     }
                 }
                 var middleIceberg = Offensive.MiddleIceberg(game);
