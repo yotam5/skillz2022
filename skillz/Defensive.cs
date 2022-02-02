@@ -23,16 +23,16 @@ namespace MyBot
             List<(int, int)> result = new List<(int, int)>();
             Player myPlayer = game.GetMyself();
             int penguinPerTurnRate = iceberg.PenguinsPerTurn;
+            int myIcebergCounter = iceberg.PenguinAmount;
             //int icebergLevel = iceberg.Level;
 
-            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; }
+            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost;}
 
             enemyPgToTarget.ForEach(pg => combinedData.Add(new int[] { -pg.PenguinAmount, pg.TurnsTillArrival }));
             myPgToTarget.ForEach(pg => combinedData.Add(new int[] { pg.PenguinAmount, pg.TurnsTillArrival }));
             combinedData.Sort((u1, u2) => u1[1].CompareTo(u2[1]));
 
             int sumCloseDistance = 0;
-            int myIcebergCounter = iceberg.PenguinAmount;
 
 
             while (combinedData.Count() > 0)

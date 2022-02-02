@@ -64,7 +64,7 @@ namespace MyBot
                 }
                 foreach(var ice in game.GetMyIcebergs()) //TODO: check if safe to upgrade from near icebergs of the enemy or maxflow
                 {
-                    if(Defensive.GetAttackingGroups(game,ice).Count() == 0 && ice.CanUpgrade() && !ice.AlreadyActed)
+                    if(Defensive.HelpIcebergData(game,ice,true).Count() ==0 && ice.CanUpgrade() && !ice.AlreadyActed)
                     {
                         ice.Upgrade();
                     }
@@ -79,7 +79,9 @@ namespace MyBot
             return myRateSum - enemyRateSum;
         }
 
-
-
+        public static bool SafeToUpgrade(Game game)
+        {
+            return false;
+        }
     }
 }
