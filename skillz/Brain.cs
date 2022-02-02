@@ -50,17 +50,6 @@ namespace MyBot
             else if(game.Turn > 22) 
             {
                 var defended = Defensive.DefendeIcebergs(game);
-                if(defended.Count() == 0 && Brain.DeltaPenguinGeneration(game) < 0)
-                {
-                    foreach(var ice in game.GetMyIcebergs())
-                    {
-                        if(Defensive.GetAttackingGroups(game,ice).Count() == 0 && ice.CanUpgrade() && !ice.AlreadyActed)
-                        {
-                            ice.Upgrade();
-                            break; //WHAT
-                        }
-                    }
-                }
                 var bestMove = Offensive.BestCombination(game);
                 if(bestMove.Item3 != -999 && !bestMove.Item1.AlreadyActed){
                     bestMove.Item1.SendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);
@@ -69,9 +58,17 @@ namespace MyBot
                 System.Console.WriteLine($"MiddleIce is {middleIceberg}");
                 foreach(var ice in game.GetMyIcebergs()){
                     if(!ice.Equals(middleIceberg) && !ice.AlreadyActed && Defensive.GetAttackingGroups(game,ice,enemy: true).Count() == 0){
+                        if(ice.CanSendPenguins(middleIceberg,middleIceberg.PenguinsPerTurn))
                         ice.SendPenguins(middleIceberg,middleIceberg.PenguinsPerTurn);
                     }
                 }
+                foreach(var ice in game.GetMyIcebergs()) //TODO: check if safe to upgrade from near icebergs of the enemy or maxflow
+                {
+                    if(Defensive.GetAttackingGroups(game,ice).Count() == 0 && ice.CanUpgrade() && !ice.AlreadyActed)
+                    {
+                        ice.Upgrade();
+                    }
+                } 
             }
         }
 
@@ -81,6 +78,8 @@ namespace MyBot
             int myRateSum = game.GetMyIcebergs().Sum(iceberg=>iceberg.PenguinsPerTurn);
             return myRateSum - enemyRateSum;
         }
+
+
 
     }
 }

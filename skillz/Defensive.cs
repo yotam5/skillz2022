@@ -45,8 +45,7 @@ namespace MyBot
                 }
                 var arrived = (from pg in combinedData where pg[1] == 0 select pg[0]).ToList();
                 for (int i = arrived.Count(); i > 0; i--, combinedData.RemoveAt(0)) ;
-                int sumArrived = arrived.Sum();
-                myIcebergCounter += penguinPerTurnRate * closestDistance + sumArrived;
+                myIcebergCounter += penguinPerTurnRate * closestDistance + arrived.Sum();
                 if (myIcebergCounter <= 0)
                 {
                     result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));
@@ -77,10 +76,10 @@ namespace MyBot
         {
 
             var icebergsInDanger = Defensive.IcebergsInDangers(game);
-            var succeded = new List<Iceberg>();
+            var succeded = new List<Iceberg>(); //probably
             if (icebergsInDanger.Count() > 0)
             {
-                icebergsInDanger.OrderByDescending(x=>Defensive.IcebergPriority(game, x.Item1)); //NOTE
+                icebergsInDanger.OrderByDescending(x=>Defensive.IcebergPriority(game, x.Item1)); 
 
                 foreach (var icebergInDangerData in icebergsInDanger)
                 {
