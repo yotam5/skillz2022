@@ -12,6 +12,7 @@ namespace MyBot {
     //TODO: check when to evacuate iceberg
     //TODO: send penguins to icebergs for an upgrade
     //TODO: add in sea collision ?
+    //TODO: improved attacking also add duel attacking at the same time
     public class TutorialBot : ISkillzBot {
         /// <summary>
         /// Makes the bot run a single turn.

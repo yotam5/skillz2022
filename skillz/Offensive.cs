@@ -8,13 +8,32 @@ namespace MyBot
 {
     public static class Offensive
     {
+
+        //TODO: take into account penguins that are on the way and if its likely that the iceberg will upgrade
         public static int EnemyPenguinsAtArrival(Game game, Iceberg myIceberg, Iceberg enemyIceberg) //add my penguins that are on da way
         {
-            int amount = enemyIceberg.PenguinAmount + enemyIceberg.PenguinsPerTurn * myIceberg.GetTurnsTillArrival(enemyIceberg);
+            int turnsTillArrival = myIceberg.GetTurnsTillArrival(enemyIceberg);
+            int amount = enemyIceberg.PenguinAmount + enemyIceberg.PenguinsPerTurn * turnsTillArrival;
+            /*foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+            {
+                if(enemyPg.TurnsTillArrival <= turnsTillArrival)
+                {
+                    amount += enemyPg.PenguinAmount;
+                }
+            }
+            foreach(var myPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy: false,sorted: false))
+            {
+                if(myPg.TurnsTillArrival <= turnsTillArrival){
+                    amount -= myPg.PenguinAmount;
+                }
+            }*/
+            System.Console.WriteLine($"at iceberg {enemyIceberg} at turn {turnsTillArrival} will be {amount}");
             return amount;
         }
 
-        public static Iceberg MiddleIceberg(Game game)
+
+
+        public static Iceberg MiddleIceberg(Game game) //TODO: make it smarter
         {
             var distances = new List<(Iceberg, int)>();
             foreach (var myIceberg in game.GetMyIcebergs())
@@ -30,7 +49,7 @@ namespace MyBot
             var maxes = new List<(Iceberg, Iceberg, int)>();
             foreach (var myIceberg in game.GetMyIcebergs())
             {
-                if (myIceberg.PenguinAmount > 30)
+                if (myIceberg.PenguinAmount > 30) //NOTE: why 30? magic number or what?
                 {
                     var attackingGroups = Defensive.GetAttackingGroups(game, myIceberg, enemy: true, sorted: false);
                     if (attackingGroups.Count() == 0)

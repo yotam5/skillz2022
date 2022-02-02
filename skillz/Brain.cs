@@ -52,10 +52,15 @@ namespace MyBot
                 var defended = Defensive.DefendeIcebergs(game);
                 var bestMove = Offensive.BestCombination(game);
                 if(bestMove.Item3 != -999 && !bestMove.Item1.AlreadyActed){
-                    bestMove.Item1.SendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);
+
+                    if(bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1)) //! fix  this
+                    {
+                        bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);            
+                    }
                 }
                 var middleIceberg = Offensive.MiddleIceberg(game);
                 System.Console.WriteLine($"MiddleIce is {middleIceberg}");
+                //! if there are alot of penguins it will take eternity like that
                 foreach(var ice in game.GetMyIcebergs()){
                     if(!ice.Equals(middleIceberg) && !ice.AlreadyActed && Defensive.GetAttackingGroups(game,ice,enemy: true).Count() == 0){
                         if(ice.CanSendPenguins(middleIceberg,middleIceberg.PenguinsPerTurn))
