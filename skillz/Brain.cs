@@ -50,14 +50,31 @@ namespace MyBot
             else if(game.Turn > 22) 
             {
                 var defended = Defensive.DefendeIcebergs(game);
+                if(Brain.DeltaPenguinGeneration(game) < 0)
+                {
+                    foreach(var ice in game.GetMyIcebergs()) //TODO: upgrade icbergs depending on flow potencial
+                    {
+                        if(Defensive.HelpIcebergData(game,ice,true).Count() ==0 && ice.CanUpgrade() && !ice.AlreadyActed)
+                        {
+                            ice.Upgrade();
+                            break;
+                        }
+                    }
+                }
                 var bestMove = Offensive.BestCombination(game);
                 if(bestMove.Item3 != -999 && !bestMove.Item1.AlreadyActed){
 
                     if(bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1)) //! fix  this?
                     {
+                        System.Console.WriteLine($"enem at arrival {Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2)}");
                         bestMove.Item1.SendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);            
                     }
+                    else
+                    {
+                        System.Console.WriteLine("best move coudnt sent penguins");
+                    }
                 }
+
                 var middleIceberg = Offensive.MiddleIceberg(game);
                 System.Console.WriteLine($"MiddleIce is {middleIceberg}");
                 
@@ -67,13 +84,7 @@ namespace MyBot
                         ice.SendPenguins(middleIceberg,middleIceberg.PenguinsPerTurn);
                     }
                 }
-                foreach(var ice in game.GetMyIcebergs()) //TODO: check if safe to upgrade from near icebergs of the enemy or maxflow
-                {
-                    if(Defensive.HelpIcebergData(game,ice,true).Count() ==0 && ice.CanUpgrade() && !ice.AlreadyActed)
-                    {
-                        ice.Upgrade();
-                    }
-                } 
+
             }
         }
 
@@ -89,5 +100,6 @@ namespace MyBot
         {
             return false;
         }
+
     }
 }

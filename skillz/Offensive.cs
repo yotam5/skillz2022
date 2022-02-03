@@ -9,12 +9,22 @@ namespace MyBot
     public static class Offensive
     {
 
+
         //TODO: take into account penguins that are on the way and if its likely that the iceberg will upgrade
         public static int EnemyPenguinsAtArrival(Game game, Iceberg myIceberg, Iceberg enemyIceberg) //add my penguins that are on da way
         {
             int turnsTillArrival = myIceberg.GetTurnsTillArrival(enemyIceberg);
             int amount = enemyIceberg.PenguinAmount + enemyIceberg.PenguinsPerTurn * turnsTillArrival;
-            foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+            var enemyIcebergs = game.GetEnemyIcebergs();
+            foreach(var closeIceberg in enemyIcebergs)
+            {
+                if(closeIceberg.GetTurnsTillArrival(myIceberg) <= enemyIceberg.GetTurnsTillArrival(myIceberg))
+                {
+                    amount += closeIceberg.PenguinAmount + closeIceberg.PenguinsPerTurn*closeIceberg.GetTurnsTillArrival(enemyIceberg);
+                }
+            }
+
+            /*foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
             {
                 if(enemyPg.TurnsTillArrival <= turnsTillArrival)
                 {
@@ -26,16 +36,14 @@ namespace MyBot
                 if(myPg.TurnsTillArrival <= turnsTillArrival){
                     amount -= myPg.PenguinAmount;
                 }
-            }
+            }*/
             System.Console.WriteLine($"at iceberg {enemyIceberg} at turn {turnsTillArrival} will be {amount}");
             return amount;
         }
 
-
-
         public static Iceberg MiddleIceberg(Game game) //TODO: make it smarter
         {
-            var distances = new List<(Iceberg, int)>();
+            var distances = new List<(Iceberg, double)>();
             foreach (var myIceberg in game.GetMyIcebergs())
             {
                 distances.Add((myIceberg, System.Math.Abs(Defensive.AverageDistanceFromEnemyIcebergs(game, myIceberg) - Defensive.AverageDistanceFromMyIcebergs(game, myIceberg))));

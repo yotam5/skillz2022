@@ -58,6 +58,7 @@ namespace MyBot
         }
 
 
+        //TODO: check what iceberg you should save the penguins but not the iceberg
         public static List<(Iceberg, List<(int, int)>)> IcebergsInDangers(Game game)
         {
             var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
@@ -95,10 +96,10 @@ namespace MyBot
                         {
                             if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver)
                             {
-                                //bruh
+                                //TODO: take into accoutn the level of the iceberg to save and also of the saver
                                 int sumEnemyGroups = game.GetEnemyPenguinGroups().Sum(pg => (pg.Destination.Equals(myIceberg) ? pg.PenguinAmount : 0));
 
-                                if (myIceberg.PenguinAmount - sumEnemyGroups > 20)
+                                if (myIceberg.PenguinAmount - sumEnemyGroups > 1)
                                 {
                                     possibleDefenders.Add(myIceberg);
                                 }
@@ -128,16 +129,6 @@ namespace MyBot
         return succeded;
         }
 
-
-        public static void EvacuateIceberg(Game game,Iceberg myIceberg) //! fixme not good bruh
-        {
-            var myIces = game.GetMyIcebergs().ToList();
-            myIces.OrderBy(x=>x.GetTurnsTillArrival(myIceberg));
-            myIceberg.SendPenguins(myIces.First(),myIceberg.PenguinAmount);
-        }
-
-
-
         public static List<Iceberg> GetMyAttackedIcebergs(Game game) //the fuck
         {
             var myIcebergs = game.GetMyIcebergs();
@@ -150,13 +141,13 @@ namespace MyBot
             return data;
         }
 
-        public static int AverageDistanceFromMyIcebergs(Game game, Iceberg exlude)
+        public static double AverageDistanceFromMyIcebergs(Game game, Iceberg exlude)
         {
             var myIcebergs = game.GetMyIcebergs();
             if(myIcebergs.Length == 1){
                 return 0;
             }
-            int totalDistance = 0;
+            double totalDistance = 0;
             foreach (var iceberg in myIcebergs)
             {
                 if (!iceberg.Equals(exlude))
@@ -168,9 +159,9 @@ namespace MyBot
             return (totalDistance / (myIcebergs.Length - 1));
         }
 
-        public static int AverageDistanceFromEnemyIcebergs(Game game, Iceberg iceberg)
+        public static double AverageDistanceFromEnemyIcebergs(Game game, Iceberg iceberg)
         {
-            int totalDistance = 0;
+            double totalDistance = 0;
             var enemyIcebergs = game.GetEnemyIcebergs();
             if(enemyIcebergs.Length == 0){return 0;}
             foreach(var enemyIceberg in enemyIcebergs){
@@ -178,7 +169,6 @@ namespace MyBot
             }
             //System.Console.WriteLine($" average enemy {totalDistance/enemyIcebergs.Length} for {iceberg}");
             return totalDistance/enemyIcebergs.Length;
-
         }
 
         public static List<PenguinGroup> GetAttackingGroups(Game game, Iceberg dest, bool enemy = true, bool sorted = true)

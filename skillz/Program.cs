@@ -5,6 +5,10 @@ namespace MyBot {
     /// This is an example for a bot.
     /// </summary>
     
+    //lvl2 21
+    //lvl3 28
+    //lvl4 35?
+
     //TODO: decoy attacks and to detect them
     //TODO: track info about how the player plays in this bot and act accordingly
     //TODO: prevent enemy icebergs from upgrading icebergs by in sea collision or attacking
@@ -13,6 +17,7 @@ namespace MyBot {
     //TODO: send penguins to icebergs for an upgrade
     //TODO: add in sea collision ?
     //TODO: improved attacking also add duel attacking at the same time
+    //TODO: find what iceberg is liklyto upgrade and attack
     public class TutorialBot : ISkillzBot {
         /// <summary>
         /// Makes the bot run a single turn.
