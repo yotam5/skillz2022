@@ -24,6 +24,7 @@ namespace MyBot
             Player myPlayer = game.GetMyself();
             int penguinPerTurnRate = iceberg.PenguinsPerTurn;
             int myIcebergCounter = iceberg.PenguinAmount;
+            myIcebergCounter -= addition;
             //int icebergLevel = iceberg.Level;
 
             if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost;}
@@ -53,7 +54,7 @@ namespace MyBot
                 }
 
             }
-
+            System.Console.WriteLine($"{iceberg} danger {myIcebergCounter}");
             return result;
         }
 

@@ -18,7 +18,7 @@ namespace MyBot
             var enemyIcebergs = game.GetEnemyIcebergs();
             foreach(var closeIceberg in enemyIcebergs)
             {
-                if(closeIceberg.GetTurnsTillArrival(myIceberg) <= enemyIceberg.GetTurnsTillArrival(myIceberg))
+                if(closeIceberg.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
                 {
                     amount += closeIceberg.PenguinAmount + closeIceberg.PenguinsPerTurn*closeIceberg.GetTurnsTillArrival(enemyIceberg);
                 }
@@ -57,10 +57,9 @@ namespace MyBot
             var maxes = new List<(Iceberg, Iceberg, int)>();
             foreach (var myIceberg in game.GetMyIcebergs())
             {
-                if (myIceberg.PenguinAmount > 30) //NOTE: why 30? magic number or what?
+                if (myIceberg.PenguinAmount > 1) //NOTE: why 30? magic number or what?
                 {
-                    var attackingGroups = Defensive.GetAttackingGroups(game, myIceberg, enemy: true, sorted: false);
-                    if (attackingGroups.Count() == 0)
+                    if (Defensive.HelpIcebergData(game,myIceberg,addition: myIceberg.PenguinAmount - 1).Count() == 0)
                     {
                         var enemiesList = (from enemyIceberg in game.GetEnemyIcebergs()
                                            where (myIceberg.PenguinAmount - Offensive.EnemyPenguinsAtArrival(game, myIceberg, enemyIceberg) > 0)
