@@ -14,11 +14,12 @@ namespace MyBot
         public static int EnemyPenguinsAtArrival(Game game, Iceberg myIceberg, Iceberg destIceberg) //add my penguins that are on da way1
         {
             int turnsTillArrival = myIceberg.GetTurnsTillArrival(destIceberg);
-            int amount = destIceberg.PenguinAmount + destIceberg.PenguinsPerTurn * turnsTillArrival;
+            int amount = destIceberg.PenguinAmount;
             if(destIceberg.Owner.Id != game.GetMyself().Id)
             {
                 amount *= -1;
             }
+            
             var destIcebergs = game.GetEnemyIcebergs();
             foreach (var closeIceberg in destIcebergs)
             {
@@ -29,14 +30,14 @@ namespace MyBot
                 }
             }
 
-            foreach(var enemyPg in Defensive.GetAttackingGroups(game,destIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+            /*foreach(var enemyPg in Defensive.GetAttackingGroups(game,destIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
             {
                 if(enemyPg.TurnsTillArrival <= turnsTillArrival)
                 {
 
                     amount -= enemyPg.PenguinAmount;
                 }
-            }
+            }*/
             System.Console.WriteLine($"at iceberg {destIceberg} at turn {turnsTillArrival} will be E {amount}");
 
             return amount;
@@ -77,6 +78,77 @@ namespace MyBot
             }
 
 
+        public static int BackupAtArrival(Game game,Iceberg destination, int turnsTillArrival)
+        {
+            var enemyPgToTarget = Defensive.GetAttackingGroups(game, destination); //enemy groups
+            var myPgToTarget = Defensive.GetAttackingGroups(game, destination, false); //my groups
+            var combinedGroups = new List<(int,int)>(); //item1 amount, item2 distance
+            var result = new List<(int,int)>();
+            foreach (var pg in enemyPgToTarget)
+            {
+                if (pg.TurnsTillArrival <= turnsTillArrival)
+                {
+                    combinedGroups.Add((-pg.PenguinAmount,pg.TurnsTillArrival));
+                }
+            }
+            foreach (var pg in myPgToTarget)
+            {
+                if (pg.TurnsTillArrival <= turnsTillArrival)
+                {
+                    combinedGroups.Add((pg.PenguinAmount,pg.TurnsTillArrival));
+                }
+            }
+            combinedGroups.OrderBy(pg=>pg.Item2); //order by distance
+            
+            int sumDisGroups = 0;
+            bool enemy = destination.Owner.Id == game.GetEnemy().Id;
+            bool neutral = destination.Owner.Id == -1;
+            int destinationAmount = destination.PenguinAmount;
+            int penguinsPerTurn = destination.PenguinsPerTurn;
+            if(enemy)
+            {
+                destinationAmount*=-1;
+                penguinsPerTurn*=-1;
+            }
+            if(neutral)
+            {
+                penguinsPerTurn *= 0;
+            }
+            while(combinedGroups.Count() > 0)
+            {   
+                int closest = combinedGroups.First().Item2;
+                sumDisGroups += closest;
+                for(int i =0;i < combinedGroups.Count();i++)
+                {
+                    combinedGroups[i] = (combinedGroups[i].Item1,combinedGroups[i].Item2 - closest);
+                }
+                var arrived = (from pg in combinedGroups where pg.Item2 == 0 select pg.Item1).ToArray();
+                for (int i = arrived.Count(); i > 0; i--, combinedGroups.RemoveAt(0));
+                destinationAmount += penguinsPerTurn*closest;
+                if(neutral)
+                {
+                    //fuck
+                }
+                else
+                {
+                    destinationAmount += penguinsPerTurn * closest + arrived.Sum();
+                    if(destinationAmount < 0)
+                    {
+                        result.Add((System.Math.Abs(destinationAmount) + 1,sumDisGroups));
+                        penguinsPerTurn = destination.PenguinsPerTurn * -1;
+                    }
+                    else if(destinationAmount > 0){
+                        penguinsPerTurn = destination.PenguinsPerTurn;
+                    }
+                    else{
+                        System.Console.WriteLine("neutral");
+                    }
+                }
+
+            }
+            System.Console.WriteLine($"ice {destination} c {destinationAmount}");
+            return destinationAmount;
+        }
 
         public static Iceberg MiddleIceberg(Game game) //TODO: make it smarter
         {
