@@ -26,7 +26,7 @@ namespace MyBot {
         /// <param name="game">the current game state</param>
         public void DoTurn (Game game) {
             double t1 = game.GetTimeRemaining();
-            Brain.execute(game);
+            GameLogic.execute(game);
             System.Console.WriteLine($"The run took: {t1 - game.GetTimeRemaining()}");
 
         }
