@@ -66,7 +66,7 @@ namespace MyBot
             return result;
         }
 
-        public static List<(Iceberg, List<(int, int)>)> IcebergsInDanger(Game game)
+        public static List<(Iceberg, List<(int, int)>)> GetIcebergsInDanger(Game game)
         {
             var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
             foreach (var iceberg in game.GetMyIcebergs())
@@ -105,9 +105,10 @@ namespace MyBot
             return distance / (myIcbergs.Length - 1);
         }
 
-
-
-
+        public static double GetIcebergPriority(Game game, Iceberg iceberg,double lf=20)
+        {
+            return iceberg.Level * lf + Utils.AverageDistanceFromEnemy(game,iceberg);
+        }
     }
 
 

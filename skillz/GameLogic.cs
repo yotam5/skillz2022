@@ -44,6 +44,7 @@ namespace MyBot
             else if (game.Turn > 22)
             {
 
+                Defensive.DefendIcebergs(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);
             }
@@ -55,10 +56,10 @@ namespace MyBot
             {
                 if (!myIce.Equals(wallIce))
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.PenguinsPerTurn) &&
-                        Utils.HelpIcebergData(game, myIce, wallIce.PenguinsPerTurn).Count() == 0)
+                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.Level) &&
+                        Utils.HelpIcebergData(game, myIce, wallIce.Level).Count() == 0)
                     {
-                        myIce.SendPenguins(wallIce, wallIce.PenguinsPerTurn);
+                        myIce.SendPenguins(wallIce, wallIce.Level);
                     }
                 }
             }
@@ -78,8 +79,24 @@ namespace MyBot
             return deltaRate;
         }
 
+        public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
+        {
+            var enemyIcebergs = game.GetEnemyIcebergs();
+            int totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
+            foreach (var reinforcmentIce in enemyIcebergs)
+            {
+                if (!reinforcmentIce.Equals(enemyIceberg) &&
+                    reinforcmentIce.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
+                {
+                    totalEnemies +=reinforcmentIce.PenguinAmount + reinforcmentIce.PenguinsPerTurn * turnsTillArrival -1;
+                }
+            }
+            return totalEnemies;
+        }
+
         public static void UpgradeRoutine(Game game)
         {
+            if(GameLogic.DeltaPenguinsRate(game) > 0){return;}
             foreach (var myIceberg in game.GetMyIcebergs())
             {
                 if (!myIceberg.AlreadyActed && myIceberg.CanUpgrade() &&
