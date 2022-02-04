@@ -18,6 +18,7 @@ namespace MyBot {
     //TODO: add in sea collision ?
     //TODO: improved attacking also add duel attacking at the same time
     //TODO: find what iceberg is liklyto upgrade and attack
+    //! fix upgrading system its pretty broken
     public class TutorialBot : ISkillzBot {
         /// <summary>
         /// Makes the bot run a single turn.

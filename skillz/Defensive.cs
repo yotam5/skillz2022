@@ -120,7 +120,9 @@ namespace MyBot
                                     {
                                         amountToSend--;
                                     }
-                                    ice.SendPenguins(iceToDefend, amountToSend);
+                                    if(ice.CanSendPenguins(iceToDefend,amountToSend)){
+                                        ice.SendPenguins(iceToDefend, amountToSend);
+                                    }
                                 }
                             }
                         }

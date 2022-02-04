@@ -29,16 +29,7 @@ namespace MyBot
             else if(game.Turn == 12){
                 game.GetMyIcebergs()[0].SendPenguins(game.GetNeutralIcebergs()[1],11);
             }
-            else if(game.Turn == 19)
-            {
-                var c = new Iceberg();
-                foreach(var nc in game.GetNeutralIcebergs()){
-                    if(nc.Id == 7){
-                        c = nc;
-                    }
-                }
-                game.GetMyIcebergs()[0].SendPenguins(c, 13);
-            }
+
             else if(game.Turn == 22)
             {
                 var c = new Iceberg();
@@ -49,30 +40,35 @@ namespace MyBot
             }
             else if(game.Turn > 22) 
             {
-                var defended = Defensive.DefendeIcebergs(game);
                 if(Brain.DeltaPenguinGeneration(game) < 0)
                 {
-                    foreach(var ice in game.GetMyIcebergs()) //TODO: upgrade icbergs depending on flow potencial
+                    foreach(var ice in game.GetMyIcebergs().OrderByDescending(x=>x.Level)) //TODO: upgrade icbergs depending on flow potencial
                     {
-                        if(Defensive.HelpIcebergData(game,ice,true).Count() ==0 && ice.CanUpgrade() && !ice.AlreadyActed)
+                        if(!ice.AlreadyActed && Defensive.HelpIcebergData(game,ice,true).Count() ==0 && ice.CanUpgrade())
                         {
                             ice.Upgrade();
                             break;
                         }
                     }
                 }
+                var defended = Defensive.DefendeIcebergs(game);
                 var bestMove = Offensive.BestCombination(game);
                 if(bestMove.Item3 != -999 && !bestMove.Item1.AlreadyActed){
+                    System.Console.WriteLine($"best move is {bestMove.Item1} to {bestMove.Item2} amount of {bestMove.Item3}");
 
-                    if(bestMove.Item1.CanSendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1)) //! fix  this?
+                    if(bestMove.Item1.CanSendPenguins(bestMove.Item2,System.Math.Abs(Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2)) + 1)) //! fix  this?
                     {
                         System.Console.WriteLine($"enem at arrival {Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2)}");
-                        bestMove.Item1.SendPenguins(bestMove.Item2,Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2) + 1);            
+                        bestMove.Item1.SendPenguins(bestMove.Item2,System.Math.Abs(Offensive.EnemyPenguinsAtArrival(game,bestMove.Item1,bestMove.Item2)) + 1);            
                     }
                     else
                     {
-                        System.Console.WriteLine("best move coudnt sent penguins");
+                        System.Console.WriteLine($"best move failed1");
                     }
+                }
+                else
+                {
+                    System.Console.WriteLine($"best move failed2");
                 }
 
                 var middleIceberg = Offensive.MiddleIceberg(game);

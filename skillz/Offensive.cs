@@ -11,35 +11,72 @@ namespace MyBot
 
 
         //TODO: take into account penguins that are on the way and if its likely that the iceberg will upgrade
-        public static int EnemyPenguinsAtArrival(Game game, Iceberg myIceberg, Iceberg enemyIceberg) //add my penguins that are on da way
+        public static int EnemyPenguinsAtArrival(Game game, Iceberg myIceberg, Iceberg destIceberg) //add my penguins that are on da way1
         {
-            int turnsTillArrival = myIceberg.GetTurnsTillArrival(enemyIceberg);
-            int amount = enemyIceberg.PenguinAmount + enemyIceberg.PenguinsPerTurn * turnsTillArrival;
-            var enemyIcebergs = game.GetEnemyIcebergs();
-            foreach(var closeIceberg in enemyIcebergs)
+            int turnsTillArrival = myIceberg.GetTurnsTillArrival(destIceberg);
+            int amount = destIceberg.PenguinAmount + destIceberg.PenguinsPerTurn * turnsTillArrival;
+            if(destIceberg.Owner.Id != game.GetMyself().Id)
             {
-                if(closeIceberg.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
+                amount *= -1;
+            }
+            var destIcebergs = game.GetEnemyIcebergs();
+            foreach (var closeIceberg in destIcebergs)
+            {
+                if (closeIceberg.GetTurnsTillArrival(destIceberg) <= turnsTillArrival)
                 {
-                    amount += closeIceberg.PenguinAmount + closeIceberg.PenguinsPerTurn*closeIceberg.GetTurnsTillArrival(enemyIceberg);
+                    amount -= closeIceberg.PenguinsPerTurn * closeIceberg.GetTurnsTillArrival(destIceberg);
+                    amount -= closeIceberg.PenguinAmount;
                 }
             }
 
-            /*foreach(var enemyPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+            foreach(var enemyPg in Defensive.GetAttackingGroups(game,destIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
             {
                 if(enemyPg.TurnsTillArrival <= turnsTillArrival)
                 {
-                    amount += enemyPg.PenguinAmount;
+
+                    amount -= enemyPg.PenguinAmount;
                 }
             }
-            foreach(var myPg in Defensive.GetAttackingGroups(game,enemyIceberg,enemy: false,sorted: false))
-            {
-                if(myPg.TurnsTillArrival <= turnsTillArrival){
-                    amount -= myPg.PenguinAmount;
-                }
-            }*/
-            System.Console.WriteLine($"at iceberg {enemyIceberg} at turn {turnsTillArrival} will be {amount}");
+            System.Console.WriteLine($"at iceberg {destIceberg} at turn {turnsTillArrival} will be E {amount}");
+
             return amount;
         }
+
+
+
+            public static int EnemyPenguinsAtArrivalNeutral(Game game, Iceberg myIceberg, Iceberg destIceberg)
+            {
+                if(destIceberg.Owner.Id != -1)
+                {
+                    System.Console.WriteLine("ICEBERG IS NOT NEUTRAL");
+                    return -999;
+                }
+                else{
+                    int amount = destIceberg.PenguinAmount;
+                    int turnsTillArrival = myIceberg.GetTurnsTillArrival(destIceberg);
+                    var destIcebergs = game.GetEnemyIcebergs();
+                    foreach(var closeIceberg in destIcebergs)
+                    {
+                        if(closeIceberg.GetTurnsTillArrival(destIceberg) <= turnsTillArrival)
+                        {
+                            amount -= closeIceberg.PenguinsPerTurn * closeIceberg.GetTurnsTillArrival(destIceberg);
+                            amount -= closeIceberg.PenguinAmount;
+                        }
+                    }
+                    foreach(var enemyPg in Defensive.GetAttackingGroups(game,destIceberg,enemy:true,sorted: false)) //! wont work on rufulf need to check why
+                    {
+                        if(enemyPg.TurnsTillArrival <= turnsTillArrival)
+                        {
+
+                            amount -= enemyPg.PenguinAmount;
+                        } 
+                    }
+                    System.Console.WriteLine($"at iceberg {destIceberg} at turn {turnsTillArrival} will N be {amount}");
+                    return amount;
+                }
+            }
+
+
 
         public static Iceberg MiddleIceberg(Game game) //TODO: make it smarter
         {
@@ -49,7 +86,7 @@ namespace MyBot
                 distances.Add((myIceberg, System.Math.Abs(Defensive.AverageDistanceFromEnemyIcebergs(game, myIceberg) - Defensive.AverageDistanceFromMyIcebergs(game, myIceberg))));
                 System.Console.WriteLine($"ice {distances.Last().Item1} avg {distances.Last().Item2}");
             }
-            return distances.OrderBy(x=>x.Item2).First().Item1;
+            return distances.OrderBy(x => x.Item2).First().Item1;
         }
 
         public static (Iceberg, Iceberg, int) BestCombination(Game game)
@@ -57,21 +94,30 @@ namespace MyBot
             var maxes = new List<(Iceberg, Iceberg, int)>();
             foreach (var myIceberg in game.GetMyIcebergs())
             {
-                if (myIceberg.PenguinAmount > 1) //NOTE: why 30? magic number or what?
+                if (myIceberg.PenguinAmount > 1 && !myIceberg.AlreadyActed) //NOTE: why 30? magic number or what?
                 {
-                    if (Defensive.HelpIcebergData(game,myIceberg,addition: myIceberg.PenguinAmount - 1).Count() == 0)
+                    if (Defensive.HelpIcebergData(game, myIceberg, addition: myIceberg.PenguinAmount - 1).Count() == 0)
                     {
                         var enemiesList = (from enemyIceberg in game.GetEnemyIcebergs()
-                                           where (myIceberg.PenguinAmount - Offensive.EnemyPenguinsAtArrival(game, myIceberg, enemyIceberg) > 0)
+                                           where (myIceberg.PenguinAmount - System.Math.Abs(Offensive.EnemyPenguinsAtArrival(game, myIceberg, enemyIceberg)) > 0 &&
+                                           Defensive.GetAttackingGroups(game, enemyIceberg, enemy: false).Count() == 0)
                                            select enemyIceberg).ToList();
 
+                        foreach (var n in game.GetNeutralIcebergs())
+                        {
+                            if (myIceberg.PenguinAmount - System.Math.Abs(Offensive.EnemyPenguinsAtArrivalNeutral(game, myIceberg, n)) > 0)
+                            {
+                                System.Console.WriteLine($"possible neutal at {n}");
+                                enemiesList.Add(n);
+                            }
+                        }
                         if (enemiesList.Count() > 0)
                         {
-                            var mx = enemiesList.OrderByDescending(x => (myIceberg.GetTurnsTillArrival(x) / (myIceberg.PenguinAmount - Offensive.EnemyPenguinsAtArrival(game, myIceberg, x))
-                            )).First();
+                            var mx = enemiesList.OrderByDescending(x => Offensive.EnemyPenguinsAtArrival(game, myIceberg, x)
+                            ).ThenBy(x => x.GetTurnsTillArrival(myIceberg)).First();
                             if (mx != null)
                             {
-                                var c = (myIceberg, mx, myIceberg.GetTurnsTillArrival(mx) / (myIceberg.PenguinAmount - Offensive.EnemyPenguinsAtArrival(game, myIceberg, mx)));
+                                var c = (myIceberg, mx, System.Math.Abs(Offensive.EnemyPenguinsAtArrival(game, myIceberg, mx)) + 1);
                                 maxes.Add(c);
                             }
                         }
