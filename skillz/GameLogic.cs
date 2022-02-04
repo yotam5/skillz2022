@@ -43,21 +43,53 @@ namespace MyBot
             }
             else if (game.Turn > 22)
             {
-                var wallIce = Defensive.GetWall(game);
-                foreach (var myIce in game.GetMyIcebergs())
+
+                GameLogic.UpgradeRoutine(game);
+                GameLogic.SendToWall(game);
+            }
+        }
+        public static void SendToWall(Game game)
+        {
+            var wallIce = Defensive.GetWall(game);
+            foreach (var myIce in game.GetMyIcebergs())
+            {
+                if (!myIce.Equals(wallIce))
                 {
-                    if (!myIce.Equals(wallIce))
+                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.PenguinsPerTurn) &&
+                        Utils.HelpIcebergData(game, myIce, wallIce.PenguinsPerTurn).Count() == 0)
                     {
-                        if (!myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.PenguinsPerTurn) && 
-                           Utils.HelpIcebergData(game,myIce,wallIce.PenguinsPerTurn).Count() == 0)
-                        {
-                           myIce.SendPenguins(wallIce, wallIce.PenguinsPerTurn);
-                        }
+                        myIce.SendPenguins(wallIce, wallIce.PenguinsPerTurn);
                     }
                 }
             }
         }
+
+        public static int DeltaPenguinsRate(Game game)
+        {
+            int deltaRate = 0;
+            foreach (var ice in game.GetMyIcebergs())
+            {
+                deltaRate += ice.Level;
+            }
+            foreach (var ice in game.GetEnemyIcebergs())
+            {
+                deltaRate -= ice.Level;
+            }
+            return deltaRate;
+        }
+
+        public static void UpgradeRoutine(Game game)
+        {
+            foreach (var myIceberg in game.GetMyIcebergs())
+            {
+                if (!myIceberg.AlreadyActed && myIceberg.CanUpgrade() &&
+                    Utils.HelpIcebergData(game, myIceberg, 0, true).Count() == 0)
+                {
+                    myIceberg.Upgrade();
+                }
+            }
+        }
+
     }
 }
-    
-        
+

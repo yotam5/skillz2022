@@ -36,13 +36,13 @@ namespace MyBot
             var result = new List<(int, int)>();
             int myId = game.GetMyself().Id;
             int penguinPerTurnRate = iceberg.PenguinsPerTurn;
-            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; }
+            int myIcebergCounter = iceberg.PenguinAmount;
+            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost; }
             enemyPgToTarget.ForEach(pg => combinedData.Add((-pg.PenguinAmount, pg.TurnsTillArrival)));
             myPgToTarget.ForEach(pg => combinedData.Add((pg.PenguinAmount, pg.TurnsTillArrival)));
             combinedData.Sort((u1, u2) => u1.Item2.CompareTo(u2.Item2));
 
             int sumCloseDistance = 0;
-            int myIcebergCounter = iceberg.PenguinAmount;
             myIcebergCounter -= additon;
 
             while (combinedData.Count() > 0)
@@ -66,6 +66,19 @@ namespace MyBot
             return result;
         }
 
+        public static List<(Iceberg, List<(int, int)>)> IcebergsInDanger(Game game)
+        {
+            var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
+            foreach (var iceberg in game.GetMyIcebergs())
+            {
+                var helpData = Utils.HelpIcebergData(game, iceberg, 0);
+                if (helpData.Count() > 0)
+                {
+                    icebergsInDanger.Add((iceberg, helpData));
+                }
+            }
+            return icebergsInDanger;
+        }
 
         public static double AverageDistanceFromEnemy(Game game, Iceberg iceberg)
         {

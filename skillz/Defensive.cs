@@ -20,8 +20,9 @@ namespace MyBot {
                System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
            }
            return distances[0].Item1;
-
        }
+
+       
    }
 
 }
