@@ -9,8 +9,11 @@ namespace MyBot
         public static void execute(Game game)
         {
 
-            if (game.Turn == 1)
+            if (game.Turn == 1){
                 game.GetMyIcebergs()[0].Upgrade();
+                Start(game);
+            }
+
             else if (game.Turn == 7)
             {
                 game.GetMyIcebergs()[0].SendPenguins(game.GetNeutralIcebergs()[0], 11);
@@ -43,10 +46,10 @@ namespace MyBot
             }
             else if (game.Turn > 22)
             {
-
-                Defensive.DefendIcebergs(game);
+                Defensive.DefendIcebergs2(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);
+                GameLogic.EndTurn(game);
             }
         }
         public static void SendToWall(Game game)
@@ -54,12 +57,12 @@ namespace MyBot
             var wallIce = Defensive.GetWall(game);
             foreach (var myIce in game.GetMyIcebergs())
             {
-                if (!myIce.Equals(wallIce))
+                if (!myIce.Equals(wallIce) && Defensive.turtlemode[myIce.UniqueId] == 0)
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.Level) &&
-                        Utils.HelpIcebergData(game, myIce, wallIce.Level).Count() == 0)
+                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce[0], wallIce[0].Level) &&
+                        Utils.HelpIcebergData(game, myIce, wallIce[0].Level).Count() == 0 && !myIce.Equals(wallIce))
                     {
-                        myIce.SendPenguins(wallIce, wallIce.Level);
+                        myIce.SendPenguins(wallIce[0], myIce.PenguinAmount - 1);
                     }
                 }
             }
@@ -81,8 +84,14 @@ namespace MyBot
 
         public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
         {
+            int totalEnemies;
             var enemyIcebergs = game.GetEnemyIcebergs();
-            int totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
+            if(enemyIceberg.Owner.Id == game.GetEnemy().Id){
+                totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
+            }
+            else{
+                totalEnemies = enemyIceberg.PenguinAmount;
+            }
             foreach (var reinforcmentIce in enemyIcebergs)
             {
                 if (!reinforcmentIce.Equals(enemyIceberg) &&
@@ -96,13 +105,52 @@ namespace MyBot
 
         public static void UpgradeRoutine(Game game)
         {
-            if(GameLogic.DeltaPenguinsRate(game) > 0){return;}
-            foreach (var myIceberg in game.GetMyIcebergs())
+            Iceberg theWall = Defensive.GetWall(game)[0];
+            //if(GameLogic.DeltaPenguinsRate(game) > 0){return;}
+            List<(Iceberg , int, int)> priority = new List<(Iceberg, int, int)>();
+            foreach (var iceberg in game.GetMyIcebergs())
             {
-                if (!myIceberg.AlreadyActed && myIceberg.CanUpgrade() &&
-                    Utils.HelpIcebergData(game, myIceberg, 0, true).Count() == 0)
+                if(iceberg.Level < iceberg.UpgradeLevelLimit && Defensive.turtlemode[iceberg.UniqueId] > 0)
                 {
-                    myIceberg.Upgrade();
+                    System.Console.WriteLine("ABOUT TO UPGRADE");
+                    if(!iceberg.AlreadyActed && Utils.BackupAtArrival(game, iceberg, 999) > iceberg.UpgradeCost){System.Console.WriteLine($"UPGRADING {iceberg}");iceberg.Upgrade();}
+
+                    priority.Add((iceberg, 1 , iceberg.UpgradeCost));
+                }
+            }
+            foreach(var iceberg in Utils.NClosestIcebergsToWall(game, 3)){
+
+                priority.Add((iceberg, iceberg.Level, WorstCaseEnemyReinforcment(game, iceberg,
+                WorstCaseEnemyReinforcment(game, iceberg, theWall.GetTurnsTillArrival(iceberg)))));
+
+            }
+            priority.OrderByDescending(u1 => u1.Item2);
+            for(int i = 0; i < priority.Count(); i++){
+                if (theWall.PenguinAmount - 10 >  priority[i].Item3 && !theWall.AlreadyActed){
+                    if(!theWall.Equals(priority[i].Item1)){
+                        theWall.SendPenguins(priority[i].Item1, priority[i].Item3 + 1);
+                        Defensive.turtlemode[priority[i].Item1.UniqueId] += theWall.GetTurnsTillArrival(priority[i].Item1) + 1;
+                        return;
+                    }
+                    else{
+                        theWall.Upgrade();
+                        return;
+                    }
+                }
+            }
+            
+        }
+
+        public static void Start(Game game) {
+            foreach(var iceberg in game.GetAllIcebergs()){
+                Defensive.turtlemode.Add(iceberg.UniqueId, 0);
+            }
+        }
+
+        public static void EndTurn(Game game){
+                foreach(var iceberg in game.GetAllIcebergs()){
+                if(Defensive.turtlemode[iceberg.UniqueId] > 0){
+                    Defensive.turtlemode[iceberg.UniqueId]--;
                 }
             }
         }

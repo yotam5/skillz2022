@@ -7,7 +7,8 @@ namespace MyBot
 {
     public static class Defensive
     {
-        public static Iceberg GetWall(Game game)
+        public static Dictionary<int, int> turtlemode = new Dictionary<int, int>();
+        public static Iceberg[] GetWall(Game game)
         {
             var distances = new List<(Iceberg, double)>();
             foreach (var myIceberg in game.GetMyIcebergs())
@@ -20,10 +21,21 @@ namespace MyBot
             {
                 System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
             }
-            return distances[0].Item1;
+            Iceberg[] Wall = {distances[0].Item1};
+            return Wall;
         }
 
-        public static void DefendIcebergs(Game game)
+        public static void DefendIcebergs2(Game game){
+            foreach(var myberg in game.GetMyIcebergs()){
+                int danger = Utils.BackupAtArrival(game, myberg, 999);
+                if (danger <= 0 && !GetWall(game)[0].AlreadyActed && !GetWall(game).Equals(myberg)){
+                    System.Console.WriteLine($"NEED TO DEFEND {myberg} using {-danger + 1} PENGUINS");
+                    GetWall(game)[0].SendPenguins(myberg, -danger + 1);
+                }
+            }
+
+        }
+        /*public static void DefendIcebergs(Game game)
         {
             var icebergsInDanger = Utils.GetIcebergsInDanger(game);
             //TODO: improve priority
@@ -71,7 +83,7 @@ namespace MyBot
                 }
             }
 
-        }
+        }*/
     }
 
 }
