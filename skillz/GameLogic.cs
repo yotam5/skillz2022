@@ -49,7 +49,7 @@ namespace MyBot
                     if (!myIce.Equals(wallIce))
                     {
                         if (!myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.PenguinsPerTurn) && 
-                           Utils.HelpIcebergData(game,myIce,addition: wallIce.PenguinsPerTurn).Count() == 0)
+                           Utils.HelpIcebergData(game,myIce,wallIce.PenguinsPerTurn).Count() == 0)
                         {
                            myIce.SendPenguins(wallIce, wallIce.PenguinsPerTurn);
                         }
