@@ -8,9 +8,13 @@ namespace MyBot
     {
         public static void execute(Game game)
         {
+            //id left first 16
+            //id right first 40
             if (game.Turn == 1)
             {
                 game.GetMyIcebergs()[0].Upgrade();
+                System.Console.WriteLine($"{game.GetMyIcebergs()[0].UniqueId}");
+
             }
             else if (game.Turn == 7)
             {
@@ -22,26 +26,20 @@ namespace MyBot
             }
             else if (game.Turn == 19)
             {
-                foreach (var nc in game.GetNeutralIcebergs())
-                {
-                    if (nc.Id == 7)
-                    {
-                        game.GetMyIcebergs()[0].SendPenguins(nc, 13);
-                        game.GetMyIcebergs()[1].SendPenguins(nc, 4);
-                        break;
-                    }
-                }
+                var nc = game.GetNeutralIcebergs().OrderBy(x=>Utils.AverageDistanceFromMyIcbergs(game,x)).ToList().First();
+    
+                game.GetMyIcebergs()[0].SendPenguins(nc, 13);
+                game.GetMyIcebergs()[1].SendPenguins(nc, 4);
+
+
             }
             else if (game.Turn == 22)
             {
-                foreach (var nc in game.GetNeutralIcebergs())
-                {
-                    if (nc.Id == 7)
-                    {
-                        game.GetMyIcebergs()[1].SendPenguins(nc, 5);
-                        break;
-                    }
-                }
+                var nc = game.GetNeutralIcebergs().OrderBy(x=>Utils.AverageDistanceFromMyIcbergs(game,x)).ToList().First();
+
+                game.GetMyIcebergs()[1].SendPenguins(nc, 5);
+                
+                
             }
             else if ( game.Turn > 23)
             {
@@ -86,6 +84,20 @@ namespace MyBot
                 deltaRate -= ice.Level;
             }
             return deltaRate;
+        }
+
+        public static int DeltaPenguinAmount(Game game)
+        {
+            int deltaAmount = 0;
+            foreach(var myIce in game.GetMyIcebergs())
+            {
+                deltaAmount += myIce.PenguinAmount;
+            }
+            foreach(var enemIce in game.GetEnemyIcebergs())
+            {
+                deltaAmount -= enemIce.PenguinAmount;
+            }
+            return deltaAmount;
         }
 
         public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
