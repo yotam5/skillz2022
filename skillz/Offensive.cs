@@ -19,12 +19,12 @@ namespace MyBot
                 int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
                 + Utils.WorstCaseEnemyReinforcment(game, closest, myIce.GetTurnsTillArrival(closest)) + 1 -
                     turnsTillArrival * closest.PenguinsPerTurn; //! NOTE THIS SUBTITUTION
-                int deltaPenguins = myIce.PenguinAmount - Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival);
+                int deltaPenguins = myIce.PenguinAmount - enemyAmountAtArrival; //! NOTE
                 System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
                 if (deltaPenguins > 1 && Utils.HelpIcebergData(game, myIce, enemyAmountAtArrival).Count() == 0)
                 {
                     System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
-                    if (myIce.CanSendPenguins(closest, enemyAmountAtArrival))
+                    if (myIce.CanSendPenguins(closest, enemyAmountAtArrival) && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
                     {
                         System.Console.WriteLine("sentttt");
                         myIce.SendPenguins(closest, enemyAmountAtArrival);
@@ -47,18 +47,24 @@ namespace MyBot
                 int worstTurnsUntilArrival = orderedWall[0].GetTurnsTillArrival(iceToAttack);
                 int amountOfEnemies = Utils.WorstCaseEnemyReinforcment(game, iceToAttack, worstTurnsUntilArrival) + Utils.EnemyPenguinAmountAtArrival(game,
                     iceToAttack, worstTurnsUntilArrival) ;
-                System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies -= worstTurnsUntilArrival*iceToAttack.PenguinsPerTurn;
+
+                System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies /= 2;
                 amountOfEnemies += 1;
                 System.Console.WriteLine($"each need to send {amountOfEnemies}");
-                if(walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies))
+                if(walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies)
+                    && !GameInfo.UpgradedThisTurn(walls[0].UniqueId) && !GameInfo.UpgradedThisTurn(walls[1].UniqueId))
                 {
 
                     walls[0].SendPenguins(iceToAttack, amountOfEnemies);
                     walls[1].SendPenguins(iceToAttack, amountOfEnemies);
                     attacked = true;
                     break;
+                }
+                else
+                {
+                    System.Console.WriteLine($"cannot send a godman {amountOfEnemies}");
                 }
             }
             if(!attacked)
@@ -86,7 +92,7 @@ namespace MyBot
                         //bruh
                         int sumEnemyGroups = game.GetEnemyPenguinGroups().Sum(pg => (pg.Destination.Equals(target) ? pg.PenguinAmount : 0));
 
-                        if (myIceberg.PenguinAmount - sumEnemyGroups > 20)
+                        if (myIceberg.PenguinAmount - sumEnemyGroups > 20 && !GameInfo.UpgradedThisTurn(myIceberg.UniqueId))
                         {
                             possibleDefenders.Add(myIceberg);
                         }

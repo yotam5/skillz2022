@@ -24,6 +24,7 @@ namespace MyBot {
         /// Makes the bot run a single turn.
         /// </summary>
         /// <param name="game">the current game state</param>
+        
         public void DoTurn (Game game) {
             double t1 = game.GetTimeRemaining();
             GameLogic.execute(game);

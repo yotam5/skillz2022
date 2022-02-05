@@ -14,6 +14,7 @@ namespace MyBot
             {
                 game.GetMyIcebergs()[0].Upgrade();
                 System.Console.WriteLine($"{game.GetMyIcebergs()[0].UniqueId}");
+                GameInfo.InitializeUpgradeDict(game);
 
             }
             else if (game.Turn == 7)
@@ -41,19 +42,15 @@ namespace MyBot
                 
                 
             }
-            else if ( game.Turn > 23)
+            else if ( game.Turn >= 23)
             {
                 Defensive.DefendIcebergs(game);
-                
-                //var ll = new List<(Iceberg,List<(int,int)>();
-                //foreach(var ice in )
-
-                //Offensive.Attack(game);
+                GameLogic.UpgradeRoutine(game);
                 Offensive.MultiThreadedAttack(game);
                 GameLogic.SendForUpgrade(game);
-                GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);  
             }
+            GameInfo.EndTurn(game);
 
         }
 
@@ -67,8 +64,9 @@ namespace MyBot
             {
                 if (!myIce.Equals(wallIce[0]) && !myIce.Equals(wallIce[1]))
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed &&
-                        Utils.HelpIcebergData(game, myIce, myIce.PenguinAmount - 1).Count() == 0)
+                    if (myIce.Level > 1 && !GameInfo.UpgradedThisTurn(myIce.UniqueId) &&
+                        Utils.HelpIcebergData(game, myIce, myIce.PenguinAmount - 1).Count() == 0
+                        && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
                     {
                         int amountToSend = myIce.PenguinAmount /2 - 1;
                         if(amountToSend >= 1)
@@ -77,8 +75,21 @@ namespace MyBot
                             myIce.SendPenguins(wallIce[1], amountToSend);
                         }
                     }
-                }
+                }   
             }
+            /*if(wallIce.Length >= 2)
+            {
+                int delta = System.Math.Abs(wallIce[0].PenguinAmount - wallIce[1].PenguinAmount);
+        
+                if(wallIce[0].PenguinAmount > wallIce[1].PenguinAmount)
+                {
+                    wallIce[0].SendPenguins(wallIce[1],delta);
+                }
+                else if(wallIce[0].PenguinAmount > wallIce[1].PenguinAmount)
+                {
+                    wallIce[1].SendPenguins(wallIce[0],delta);
+                }
+            }*/
         }
 
         public static int DeltaPenguinsRate(Game game)
@@ -119,6 +130,7 @@ namespace MyBot
                     Utils.HelpIcebergData(game, myIceberg, 0, true).Count() == 0)
                 {
                     myIceberg.Upgrade();
+                    GameInfo.UpdateUpgradeDict(myIceberg.UniqueId);
                 }
             }
         }
@@ -156,7 +168,7 @@ namespace MyBot
                 foreach(var wall in Defensive.GetWall(game))
                 {
                     if(!wall.Equals(selected)  && wall.CanSendPenguins(selected,upgradeCost) &&
-                        Utils.HelpIcebergData(game,wall,upgradeCost).Count() == 0)
+                        Utils.HelpIcebergData(game,wall,upgradeCost).Count() == 0 && !GameInfo.UpgradedThisTurn(wall.UniqueId))
                     {
                         if( Utils.WorstCaseEnemyReinforcment(game,selected,wall.GetTurnsTillArrival(selected)) < upgradeCost)
                         {    wall.SendPenguins(selected,upgradeCost);
