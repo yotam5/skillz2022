@@ -36,9 +36,10 @@ namespace MyBot
 
         public static void MultiThreadedAttack(Game game)
         {
-            var icesToAttack = game.GetEnemyIcebergs().OrderBy(x => Utils.AverageDistanceFromMyIcbergs(game, x)).ToList();
+            var icesToAttack = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => icesToAttack.Add(x));
-
+            icesToAttack = icesToAttack.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).ToList();
+            bool attacked = false;
             foreach(var iceToAttack in icesToAttack)
             {
                 var walls = Defensive.GetWall(game).ToList();
@@ -46,16 +47,23 @@ namespace MyBot
                 int worstTurnsUntilArrival = orderedWall[0].GetTurnsTillArrival(iceToAttack);
                 int amountOfEnemies = Utils.WorstCaseEnemyReinforcment(game, iceToAttack, worstTurnsUntilArrival) + Utils.EnemyPenguinAmountAtArrival(game,
                     iceToAttack, worstTurnsUntilArrival) ;
+                System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies -= worstTurnsUntilArrival*iceToAttack.PenguinsPerTurn;
                 amountOfEnemies /= 2;
                 amountOfEnemies += 1;
+                System.Console.WriteLine($"each need to send {amountOfEnemies}");
                 if(walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies))
                 {
 
                     walls[0].SendPenguins(iceToAttack, amountOfEnemies);
                     walls[1].SendPenguins(iceToAttack, amountOfEnemies);
+                    attacked = true;
                     break;
                 }
+            }
+            if(!attacked)
+            {
+                Offensive.Attack(game);
             }
 
         }

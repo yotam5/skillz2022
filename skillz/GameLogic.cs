@@ -50,11 +50,15 @@ namespace MyBot
 
                 //Offensive.Attack(game);
                 Offensive.MultiThreadedAttack(game);
+                GameLogic.SendForUpgrade(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);  
             }
 
         }
+
+
+
         public static void SendToWall(Game game)
         {
             var wallIce = Defensive.GetWall(game);
@@ -122,8 +126,57 @@ namespace MyBot
         //TODO: implement
         public static void SendForUpgrade(Game game)
         {
-            var myIcebergs = game.GetMyIcebergs();
-            
+            var myIcebergs = game.GetMyIcebergs().ToList();
+            game.GetNeutralIcebergs().ToList().ForEach(x=>myIcebergs.Add(x));
+            myIcebergs = myIcebergs.OrderBy(x=>x.Level).ThenBy(x=>Utils.AverageDistanceFromMyIcbergs(game,x)).ToList();
+            var selected = new Iceberg();
+            bool choosen = false;
+            foreach(var ice in myIcebergs)//! defense was sent note?
+            {   
+                int groupsOnDaWay = Utils.GetAttackingGroups(game,ice,enemy:false).Sum(x=>x.PenguinAmount);
+                if(groupsOnDaWay <= ice.UpgradeCost)
+                {
+                    System.Console.WriteLine($"choosen iceberg {ice} for an upgrade");
+                    selected = ice;
+                    choosen = true;
+                    break;
+                }
+            }
+            if(!choosen)
+            {
+                System.Console.WriteLine("breaking bad");
+                return;
+            }  
+            if(selected.Level < 4)
+            {
+                int upgradeCost = selected.UpgradeCost; //NOTE
+                /*int eachNeedToSend = upgradeCost / 2;
+                eachNeedToSend++;
+                var tmp = new List<(Iceberg,int)>();*/
+                foreach(var wall in Defensive.GetWall(game))
+                {
+                    if(!wall.Equals(selected)  && wall.CanSendPenguins(selected,upgradeCost) &&
+                        Utils.HelpIcebergData(game,wall,upgradeCost).Count() == 0)
+                    {
+                        if( Utils.WorstCaseEnemyReinforcment(game,selected,wall.GetTurnsTillArrival(selected)) < upgradeCost)
+                        {    wall.SendPenguins(selected,upgradeCost);
+                            break;
+                        }
+                    }
+                }
+                /*foreach(var data in tmp)
+                {
+                    upgradeCost -= data.Item2;
+                }
+                System.Console.WriteLine($"upgrade cost is {upgradeCost}");
+                if(upgradeCost  <= 0){
+                    foreach(var data in tmp)
+                    {
+                        data.Item1.SendPenguins(selected,data.Item2);
+                    }
+                }*/
+
+            }
         }
 
     }

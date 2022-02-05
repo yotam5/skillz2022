@@ -65,14 +65,19 @@ namespace MyBot
             return result;
         }
 
-        public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
+        public static int WorstCaseEnemyReinforcment(Game game, Iceberg destIce, int turnsTillArrival)
         {
             var enemyIcebergs = game.GetEnemyIcebergs();
-            int totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
+            bool neutral = destIce.Owner.Id == -1;
+            int totalEnemies = destIce.PenguinAmount;
+            if(!neutral)
+            {
+                totalEnemies += destIce.PenguinsPerTurn* turnsTillArrival;
+            }
             foreach (var reinforcmentIce in enemyIcebergs)
             {
-                if (!reinforcmentIce.Equals(enemyIceberg) &&
-                    reinforcmentIce.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
+                if (!reinforcmentIce.Equals(destIce) &&
+                    reinforcmentIce.GetTurnsTillArrival(destIce) <= turnsTillArrival)
                 {
                     totalEnemies += reinforcmentIce.PenguinAmount + (reinforcmentIce.PenguinsPerTurn * turnsTillArrival) -1;
                 }
@@ -99,6 +104,17 @@ namespace MyBot
                 }
                 return destAmount;
             }
+        }
+
+        public static double AverageDistanceFromWall(Game game,Iceberg iceberg)
+        {
+            double totalDistance = 0;
+            var walls = Defensive.GetWall(game);
+            foreach(var wall in walls)
+            {
+                totalDistance += wall.GetTurnsTillArrival(iceberg);
+            }
+            return totalDistance / (walls.Count());
         }
 
         public static List<(Iceberg, List<(int, int)>)> GetIcebergsInDanger(Game game)
