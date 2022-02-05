@@ -65,6 +65,21 @@ namespace MyBot
             return result;
         }
 
+        public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
+        {
+            var enemyIcebergs = game.GetEnemyIcebergs();
+            int totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
+            foreach (var reinforcmentIce in enemyIcebergs)
+            {
+                if (!reinforcmentIce.Equals(enemyIceberg) &&
+                    reinforcmentIce.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
+                {
+                    totalEnemies += reinforcmentIce.PenguinAmount + (reinforcmentIce.PenguinsPerTurn * turnsTillArrival) -1;
+                }
+            }
+            return totalEnemies;
+        }
+
         public static int EnemyPenguinAmountAtArrival(Game game, Iceberg destination, int turnsTillArrival)
         {
             int destAmount = destination.PenguinAmount;

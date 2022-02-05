@@ -44,7 +44,12 @@ namespace MyBot
             else if ( game.Turn > 23)
             {
                 Defensive.DefendIcebergs(game);
-                Offensive.Attack(game);
+                
+                //var ll = new List<(Iceberg,List<(int,int)>();
+                //foreach(var ice in )
+
+                //Offensive.Attack(game);
+                Offensive.MultiThreadedAttack(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);  
             }
@@ -98,21 +103,6 @@ namespace MyBot
                 deltaAmount -= enemIce.PenguinAmount;
             }
             return deltaAmount;
-        }
-
-        public static int WorstCaseEnemyReinforcment(Game game, Iceberg enemyIceberg, int turnsTillArrival)
-        {
-            var enemyIcebergs = game.GetEnemyIcebergs();
-            int totalEnemies = enemyIceberg.PenguinAmount + enemyIceberg.Level * turnsTillArrival;
-            foreach (var reinforcmentIce in enemyIcebergs)
-            {
-                if (!reinforcmentIce.Equals(enemyIceberg) &&
-                    reinforcmentIce.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
-                {
-                    totalEnemies += reinforcmentIce.PenguinAmount + (reinforcmentIce.PenguinsPerTurn * turnsTillArrival) -1;
-                }
-            }
-            return totalEnemies;
         }
 
 
