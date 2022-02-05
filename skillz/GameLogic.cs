@@ -8,9 +8,10 @@ namespace MyBot
     {
         public static void execute(Game game)
         {
-
             if (game.Turn == 1)
+            {
                 game.GetMyIcebergs()[0].Upgrade();
+            }
             else if (game.Turn == 7)
             {
                 game.GetMyIcebergs()[0].SendPenguins(game.GetNeutralIcebergs()[0], 11);
@@ -42,14 +43,7 @@ namespace MyBot
                     }
                 }
             }
-            else if ( game.Turn < 52)
-            {
-
-                Defensive.DefendIcebergs(game);
-                GameLogic.UpgradeRoutine(game);
-                GameLogic.SendToWall(game);
-            }
-            else 
+            else if ( game.Turn > 23)
             {
                 Defensive.DefendIcebergs(game);
                 Offensive.Attack(game);
@@ -66,12 +60,15 @@ namespace MyBot
             {
                 if (!myIce.Equals(wallIce[0]) && !myIce.Equals(wallIce[1]))
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce[0], myIce.PenguinAmount/2) &&
+                    if (myIce.Level > 1 && !myIce.AlreadyActed &&
                         Utils.HelpIcebergData(game, myIce, myIce.PenguinAmount - 1).Count() == 0)
                     {
                         int amountToSend = myIce.PenguinAmount /2 - 1;
-                        myIce.SendPenguins(wallIce[0], amountToSend);
-                        myIce.SendPenguins(wallIce[1], amountToSend);
+                        if(amountToSend >= 1)
+                        {
+                            myIce.SendPenguins(wallIce[0], amountToSend);
+                            myIce.SendPenguins(wallIce[1], amountToSend);
+                        }
                     }
                 }
             }
