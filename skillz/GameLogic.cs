@@ -41,13 +41,21 @@ namespace MyBot
                     }
                 }
             }
-            else if (game.Turn > 22)
+            else if ( game.Turn < 52)
             {
 
                 Defensive.DefendIcebergs(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);
             }
+            else 
+            {
+                Offensive.Attack(game);
+                Defensive.DefendIcebergs(game);
+                GameLogic.UpgradeRoutine(game);
+                GameLogic.SendToWall(game);  
+            }
+
         }
         public static void SendToWall(Game game)
         {
@@ -88,11 +96,12 @@ namespace MyBot
                 if (!reinforcmentIce.Equals(enemyIceberg) &&
                     reinforcmentIce.GetTurnsTillArrival(enemyIceberg) <= turnsTillArrival)
                 {
-                    totalEnemies +=reinforcmentIce.PenguinAmount + reinforcmentIce.PenguinsPerTurn * turnsTillArrival -1;
+                    totalEnemies += reinforcmentIce.PenguinAmount + (reinforcmentIce.PenguinsPerTurn * turnsTillArrival) -1;
                 }
             }
             return totalEnemies;
         }
+
 
         public static void UpgradeRoutine(Game game)
         {
@@ -107,6 +116,7 @@ namespace MyBot
             }
         }
 
+        //TODO: implement
         public static void SendForUpgrade(Game game)
         {
             var myIcebergs = game.GetMyIcebergs();

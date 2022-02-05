@@ -65,6 +65,27 @@ namespace MyBot
             return result;
         }
 
+        public static int EnemyPenguinAmountAtArrival(Game game, Iceberg destination, int turnsTillArrival)
+        {
+            int destAmount = destination.PenguinAmount;
+            if(destination.Owner.Id == -1)
+            {
+                return destAmount;
+            }
+            else
+            {
+                destAmount += destination.PenguinsPerTurn * turnsTillArrival;
+                foreach(var k in game.GetEnemyPenguinGroups())
+                {
+                    if(k.Destination.Equals(destination) && k.TurnsTillArrival <= turnsTillArrival)
+                    {
+                        destAmount += k.PenguinAmount;
+                    }
+                }
+                return destAmount;
+            }
+        }
+
         public static List<(Iceberg, List<(int, int)>)> GetIcebergsInDanger(Game game)
         {
             var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
@@ -83,11 +104,15 @@ namespace MyBot
         {
             double distance = 0;
             var enemIcbergs = game.GetEnemyIcebergs();
+            int sub = (iceberg.Owner.Id == game.GetEnemy().Id) ? -1 : 0;
             foreach (var enemIce in enemIcbergs)
             {
-                distance += enemIce.GetTurnsTillArrival(iceberg);
+                if (!enemIce.Equals(iceberg))
+                {
+                    distance += enemIce.GetTurnsTillArrival(iceberg);
+                }
             }
-            return distance / enemIcbergs.Length;
+            return distance / (enemIcbergs.Length - sub);
         }
 
         public static double AverageDistanceFromMyIcbergs(Game game, Iceberg iceberg)
@@ -104,9 +129,9 @@ namespace MyBot
             return distance / (myIcbergs.Length - 1);
         }
 
-        public static double GetIcebergPriority(Game game, Iceberg iceberg,double lf=20)
+        public static double GetIcebergPriority(Game game, Iceberg iceberg, double lf = 20)
         {
-            return iceberg.Level * lf + Utils.AverageDistanceFromEnemy(game,iceberg);
+            return iceberg.Level * lf + Utils.AverageDistanceFromEnemy(game, iceberg);
         }
     }
 
