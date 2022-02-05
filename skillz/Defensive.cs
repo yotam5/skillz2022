@@ -62,7 +62,7 @@ namespace MyBot
                                 int amountToSend = (int)(ratio * neededAmount) + 1;
                                 if (ice.PenguinAmount < amountToSend)
                                 {
-                                    amountToSend--;
+                                    --amountToSend;
                                 }
                                 ice.SendPenguins(iceToDefend, amountToSend);
                             }

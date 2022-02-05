@@ -55,8 +55,7 @@ namespace MyBot
                 }
                 var arrived = (from pg in combinedData where pg.Item2 == 0 select pg.Item1).ToList();
                 for (int i = arrived.Count(); i > 0; i--, combinedData.RemoveAt(0)) ;
-                int sumArrived = arrived.Sum();
-                myIcebergCounter += closest * penguinPerTurnRate + sumArrived;
+                myIcebergCounter += closest * penguinPerTurnRate + arrived.Sum();
                 if (myIcebergCounter <= 0)
                 {
                     result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));

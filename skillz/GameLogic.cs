@@ -56,10 +56,10 @@ namespace MyBot
             {
                 if (!myIce.Equals(wallIce))
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, wallIce.Level) &&
-                        Utils.HelpIcebergData(game, myIce, wallIce.Level).Count() == 0)
+                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, myIce.Level - 1) &&
+                        Utils.HelpIcebergData(game, myIce, myIce.Level -1).Count() == 0)
                     {
-                        myIce.SendPenguins(wallIce, wallIce.Level);
+                        myIce.SendPenguins(wallIce, myIce.Level - 1);
                     }
                 }
             }
@@ -105,6 +105,12 @@ namespace MyBot
                     myIceberg.Upgrade();
                 }
             }
+        }
+
+        public static void SendForUpgrade(Game game)
+        {
+            var myIcebergs = game.GetMyIcebergs();
+            
         }
 
     }
