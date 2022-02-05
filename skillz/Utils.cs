@@ -150,6 +150,8 @@ namespace MyBot
         {
             double distance = 0;
             var myIcbergs = game.GetMyIcebergs();
+            int count = myIcbergs.Length;
+            if(iceberg.Owner.Id == game.GetMyself().Id){--count;}
             foreach (var myIceberg in myIcbergs)
             {
                 if (!myIcbergs.Equals(iceberg))
@@ -157,12 +159,12 @@ namespace MyBot
                     distance += myIceberg.GetTurnsTillArrival(iceberg);
                 }
             }
-            return distance / (myIcbergs.Length - 1);
+            return distance / myIcbergs.Length;
         }
 
         public static double GetIcebergPriority(Game game, Iceberg iceberg, double lf = 20)
         {
-            return iceberg.Level * lf + Utils.AverageDistanceFromEnemy(game, iceberg);
+            return (iceberg.Level * lf )+ Utils.AverageDistanceFromWall(game, iceberg);
         }
     }
 

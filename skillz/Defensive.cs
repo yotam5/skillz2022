@@ -20,8 +20,9 @@ namespace MyBot
             {
                 System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
             }
-            Iceberg[] theWalls = {distances[0].Item1};
-            if(distances.Count() > 1){
+            Iceberg[] theWalls = { distances[0].Item1 };
+            if (distances.Count() > 1)
+            {
                 theWalls = theWalls.Append(distances[1].Item1).ToArray();
             }
 
@@ -45,15 +46,11 @@ namespace MyBot
                     var possibleDefenders = new List<Iceberg>();
                     foreach (var myIceberg in GetWall(game))
                     {
-                        if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver)
+                        if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver && !GameInfo.UpgradedThisTurn(
+                            myIceberg.UniqueId
+                        ))
                         {
-                            //bruh
-                            int sumEnemyGroups = game.GetEnemyPenguinGroups().Sum(pg => (pg.Destination.Equals(myIceberg) ? pg.PenguinAmount : 0));
-
-                            if (myIceberg.PenguinAmount - sumEnemyGroups > 20)
-                            {
-                                possibleDefenders.Add(myIceberg);
-                            }
+                            possibleDefenders.Add(myIceberg);
                         }
                     }
                     if (possibleDefenders.Count() > 0)
@@ -65,9 +62,12 @@ namespace MyBot
                             {
                                 double ratio = (double)ice.PenguinAmount / sumDefenders;
                                 int amountToSend = (int)(ratio * neededAmount) + 1;
-                                if (ice.PenguinAmount < amountToSend)
+                                if(ice.PenguinAmount < amountToSend){--amountToSend;}
+                                bool safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
+                                while (!safeToSend && amountToSend > 0)
                                 {
-                                    amountToSend--;
+                                    --amountToSend;
+                                    safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
                                 }
                                 ice.SendPenguins(iceToDefend, amountToSend);
                             }

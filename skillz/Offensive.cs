@@ -11,7 +11,7 @@ namespace MyBot
         {
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => enemyIcebergs.Add(x));
-            var closest = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromMyIcbergs(game, x)).First();
+            var closest = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).First();
             System.Console.WriteLine($"selected ice to attack is {closest}");
             foreach (var myIce in game.GetMyIcebergs())
             {
@@ -26,7 +26,6 @@ namespace MyBot
                     System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
                     if (myIce.CanSendPenguins(closest, enemyAmountAtArrival) && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
                     {
-                        System.Console.WriteLine("sentttt");
                         myIce.SendPenguins(closest, enemyAmountAtArrival);
                     }
 
@@ -40,34 +39,38 @@ namespace MyBot
             game.GetNeutralIcebergs().ToList().ForEach(x => icesToAttack.Add(x));
             icesToAttack = icesToAttack.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).ToList();
             bool attacked = false;
-            foreach(var iceToAttack in icesToAttack)
+            foreach (var iceToAttack in icesToAttack)
             {
                 var walls = Defensive.GetWall(game).ToList();
                 var orderedWall = walls.OrderByDescending(x => x.GetTurnsTillArrival(iceToAttack)).ToList();
                 int worstTurnsUntilArrival = orderedWall[0].GetTurnsTillArrival(iceToAttack);
                 int amountOfEnemies = Utils.WorstCaseEnemyReinforcment(game, iceToAttack, worstTurnsUntilArrival) + Utils.EnemyPenguinAmountAtArrival(game,
-                    iceToAttack, worstTurnsUntilArrival) ;
-                amountOfEnemies -= worstTurnsUntilArrival*iceToAttack.PenguinsPerTurn;
-
+                    iceToAttack, worstTurnsUntilArrival);
+                amountOfEnemies -= worstTurnsUntilArrival * iceToAttack.PenguinsPerTurn;
+                System.Console.WriteLine($"to ice {iceToAttack}  worst { Utils.WorstCaseEnemyReinforcment(game, iceToAttack, worstTurnsUntilArrival)} arrival {Utils.EnemyPenguinAmountAtArrival(game,iceToAttack, worstTurnsUntilArrival)}");
+                System.Console.WriteLine($"DELTA {amountOfEnemies}");
                 System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies /= 2;
                 amountOfEnemies += 1;
+                if (amountOfEnemies < 0)
+                {
+                    continue;
+                }
                 System.Console.WriteLine($"each need to send {amountOfEnemies}");
-                if(walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies)
+                if (walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies)
                     && !GameInfo.UpgradedThisTurn(walls[0].UniqueId) && !GameInfo.UpgradedThisTurn(walls[1].UniqueId))
                 {
 
                     walls[0].SendPenguins(iceToAttack, amountOfEnemies);
                     walls[1].SendPenguins(iceToAttack, amountOfEnemies);
                     attacked = true;
-                    break;
                 }
                 else
                 {
                     System.Console.WriteLine($"cannot send a godman {amountOfEnemies}");
                 }
             }
-            if(!attacked)
+            if (!attacked)
             {
                 Offensive.Attack(game);
             }
@@ -87,15 +90,10 @@ namespace MyBot
                 var possibleDefenders = new List<Iceberg>();
                 foreach (var myIceberg in Defensive.GetWall(game))
                 {
-                    if (myIceberg.GetTurnsTillArrival(iceToAttack) <= timeToDeliver)
+                    if (myIceberg.GetTurnsTillArrival(iceToAttack) <= timeToDeliver && !GameInfo.UpgradedThisTurn(myIceberg.UniqueId)
+                        && Utils.HelpIcebergData(game, myIceberg, myIceberg.Level).Count() == 0)
                     {
-                        //bruh
-                        int sumEnemyGroups = game.GetEnemyPenguinGroups().Sum(pg => (pg.Destination.Equals(target) ? pg.PenguinAmount : 0));
-
-                        if (myIceberg.PenguinAmount - sumEnemyGroups > 20 && !GameInfo.UpgradedThisTurn(myIceberg.UniqueId))
-                        {
-                            possibleDefenders.Add(myIceberg);
-                        }
+                        possibleDefenders.Add(myIceberg);
                     }
                 }
                 if (possibleDefenders.Count() > 0)
@@ -107,11 +105,21 @@ namespace MyBot
                         {
                             double ratio = (double)ice.PenguinAmount / sumDefenders;
                             int amountToSend = (int)(ratio * neededAmount) + 1;
-                            if (ice.PenguinAmount < amountToSend)
+                            bool safeToSend = false;
+                            if (amountToSend > ice.PenguinAmount) { amountToSend--; }
+                            while (!safeToSend && amountToSend > 0)
                             {
                                 --amountToSend;
+                                safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
                             }
-                            ice.SendPenguins(iceToAttack, amountToSend);
+                            if (ice.CanSendPenguins(iceToAttack, amountToSend))
+                            {
+                                ice.SendPenguins(iceToAttack, amountToSend);
+                            }
+                            else
+                            {
+                                System.Console.WriteLine($"coudnt send help i think?");
+                            }
                         }
                     }
                 }

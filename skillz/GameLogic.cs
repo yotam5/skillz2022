@@ -44,11 +44,23 @@ namespace MyBot
             }
             else if ( game.Turn >= 23)
             {
+                if(GameLogic.DeltaPenguinsRate(game) <= 0 || GameLogic.DeltaPenguinAmount(game) <= 0)
+                {
                 Defensive.DefendIcebergs(game);
                 GameLogic.UpgradeRoutine(game);
-                Offensive.MultiThreadedAttack(game);
                 GameLogic.SendForUpgrade(game);
+                Offensive.MultiThreadedAttack(game);
                 GameLogic.SendToWall(game);  
+                }
+                else
+                {
+                    Defensive.DefendIcebergs(game);
+                    Offensive.MultiThreadedAttack(game);
+                    GameLogic.UpgradeRoutine(game);
+                    GameLogic.SendForUpgrade(game);
+                    GameLogic.SendToWall(game);  
+                }
+
             }
             GameInfo.EndTurn(game);
 
@@ -64,15 +76,15 @@ namespace MyBot
             {
                 if (!myIce.Equals(wallIce[0]) && !myIce.Equals(wallIce[1]))
                 {
+                    int amountToSend = (myIce.PenguinAmount /2 - 1)*2;
                     if (myIce.Level > 1 && !GameInfo.UpgradedThisTurn(myIce.UniqueId) &&
-                        Utils.HelpIcebergData(game, myIce, myIce.PenguinAmount - 1).Count() == 0
+                        Utils.HelpIcebergData(game, myIce, amountToSend).Count() == 0
                         && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
                     {
-                        int amountToSend = myIce.PenguinAmount /2 - 1;
-                        if(amountToSend >= 1)
+                        if(amountToSend/2 >= 1)
                         {
-                            myIce.SendPenguins(wallIce[0], amountToSend);
-                            myIce.SendPenguins(wallIce[1], amountToSend);
+                            myIce.SendPenguins(wallIce[0], amountToSend/2);
+                            myIce.SendPenguins(wallIce[1], amountToSend/2);
                         }
                     }
                 }   
