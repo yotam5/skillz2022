@@ -26,6 +26,7 @@ namespace MyBot
                     if (nc.Id == 7)
                     {
                         game.GetMyIcebergs()[0].SendPenguins(nc, 13);
+                        game.GetMyIcebergs()[1].SendPenguins(nc, 4);
                         break;
                     }
                 }
@@ -60,14 +61,17 @@ namespace MyBot
         public static void SendToWall(Game game)
         {
             var wallIce = Defensive.GetWall(game);
+            if (wallIce.Length == 1) {return;}
             foreach (var myIce in game.GetMyIcebergs())
             {
-                if (!myIce.Equals(wallIce))
+                if (!myIce.Equals(wallIce[0]) && !myIce.Equals(wallIce[1]))
                 {
-                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce, myIce.Level - 1) &&
-                        Utils.HelpIcebergData(game, myIce, myIce.Level -1).Count() == 0)
+                    if (myIce.Level > 1 && !myIce.AlreadyActed && myIce.CanSendPenguins(wallIce[0], myIce.PenguinAmount/2) &&
+                        Utils.HelpIcebergData(game, myIce, myIce.PenguinAmount - 1).Count() == 0)
                     {
-                        myIce.SendPenguins(wallIce, myIce.Level - 1);
+                        int amountToSend = myIce.PenguinAmount /2 - 1;
+                        myIce.SendPenguins(wallIce[0], amountToSend);
+                        myIce.SendPenguins(wallIce[1], amountToSend);
                     }
                 }
             }
@@ -105,7 +109,7 @@ namespace MyBot
 
         public static void UpgradeRoutine(Game game)
         {
-            if(GameLogic.DeltaPenguinsRate(game) > 0){return;}
+            //if(GameLogic.DeltaPenguinsRate(game) > 0){return;}
             foreach (var myIceberg in game.GetMyIcebergs())
             {
                 if (!myIceberg.AlreadyActed && myIceberg.CanUpgrade() &&
@@ -125,4 +129,3 @@ namespace MyBot
 
     }
 }
-

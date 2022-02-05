@@ -37,7 +37,7 @@ namespace MyBot
             int myId = game.GetMyself().Id;
             int penguinPerTurnRate = iceberg.PenguinsPerTurn;
             int myIcebergCounter = iceberg.PenguinAmount;
-            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost; }
+            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost + 1; }
             enemyPgToTarget.ForEach(pg => combinedData.Add((-pg.PenguinAmount, pg.TurnsTillArrival)));
             myPgToTarget.ForEach(pg => combinedData.Add((pg.PenguinAmount, pg.TurnsTillArrival)));
             combinedData.Sort((u1, u2) => u1.Item2.CompareTo(u2.Item2));

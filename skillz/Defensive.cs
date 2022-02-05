@@ -7,7 +7,7 @@ namespace MyBot
 {
     public static class Defensive
     {
-        public static Iceberg GetWall(Game game)
+        public static Iceberg[] GetWall(Game game)
         {
             var distances = new List<(Iceberg, double)>();
             foreach (var myIceberg in game.GetMyIcebergs())
@@ -20,7 +20,12 @@ namespace MyBot
             {
                 System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
             }
-            return distances[0].Item1;
+            Iceberg[] theWalls = {distances[0].Item1};
+            if(distances.Count() > 1){
+                theWalls = theWalls.Append(distances[1].Item1).ToArray();
+            }
+
+            return theWalls;
         }
 
         public static void DefendIcebergs(Game game)
@@ -38,7 +43,7 @@ namespace MyBot
                     int neededAmount = data.Item1;
                     int timeToDeliver = data.Item2;
                     var possibleDefenders = new List<Iceberg>();
-                    foreach (var myIceberg in game.GetMyIcebergs())
+                    foreach (var myIceberg in GetWall(game))
                     {
                         if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver)
                         {
@@ -62,7 +67,7 @@ namespace MyBot
                                 int amountToSend = (int)(ratio * neededAmount) + 1;
                                 if (ice.PenguinAmount < amountToSend)
                                 {
-                                    --amountToSend;
+                                    amountToSend--;
                                 }
                                 ice.SendPenguins(iceToDefend, amountToSend);
                             }
