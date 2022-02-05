@@ -50,8 +50,8 @@ namespace MyBot
             }
             else 
             {
-                Offensive.Attack(game);
                 Defensive.DefendIcebergs(game);
+                Offensive.Attack(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);  
             }
