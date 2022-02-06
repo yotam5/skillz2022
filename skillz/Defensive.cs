@@ -34,6 +34,15 @@ namespace MyBot
             var icebergsInDanger = Utils.GetIcebergsInDanger(game);
             //TODO: improve priority
             icebergsInDanger = icebergsInDanger.OrderByDescending(x => Utils.GetIcebergPriority(game, x.Item1)).ToList();
+            System.Console.WriteLine("defend");
+            foreach(var ice in icebergsInDanger)
+            {
+                System.Console.WriteLine($"danger ice {ice}");
+                if(Utils.HelpIcebergData(game,ice.Item1,0,true).Count() == 0)
+                {
+                    //! need to upgrade if possible
+                }
+            }
             foreach(var icebergInDangerData in icebergsInDanger)
             {
                 Utils.SendAmountWithTurnsLimit(game,icebergInDangerData.Item1,icebergInDangerData.Item2);

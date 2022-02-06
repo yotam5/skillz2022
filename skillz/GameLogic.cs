@@ -45,9 +45,9 @@ namespace MyBot
             else if (game.Turn >= 23)
             {
                 Defensive.DefendIcebergs(game);
+                Offensive.MultiThreadedAttack(game);
+                //Offensive.test1(game);
                 GameLogic.UpgradeRoutine(game);
-                Offensive.Attack(game);
-                Offensive.test1(game);
                 GameLogic.SendToWall(game);
 
             }
@@ -112,6 +112,7 @@ namespace MyBot
         public static void UpgradeRoutine(Game game)
         {
             //!if(GameLogic.DeltaPenguinAmount(game) > 400){return;}
+
             foreach (var myIceberg in game.GetMyIcebergs())
             {
                 if (!myIceberg.AlreadyActed && myIceberg.CanUpgrade() &&
@@ -126,10 +127,14 @@ namespace MyBot
 
         public static void SendForUpgrade(Game game)
         {
+            if(GameLogic.DeltaPenguinsRate(game) >= 0){
+                return ;
+            }
+            const int maxUpgradesInTurn = 1; //!
             var myIcebergs = game.GetMyIcebergs().ToList();
-            game.GetNeutralIcebergs().ToList().ForEach(x => myIcebergs.Add(x));
+            //game.GetNeutralIcebergs().ToList().ForEach(x => myIcebergs.Add(x));
             myIcebergs = (from ice in myIcebergs where ice.Level <  4 select ice).ToList();
-            myIcebergs = myIcebergs.OrderBy(x=>Utils.AverageDistanceFromWall(game,x)).ToList();
+            myIcebergs = myIcebergs.OrderBy(x=>Utils.AverageDistanceFromEnemy(game,x)).ToList();
             var selectedToUpgrade = new List<Iceberg>();
             foreach (var ice in myIcebergs)
             {
@@ -139,24 +144,19 @@ namespace MyBot
                     selectedToUpgrade.Add(ice);
                 }
             }
-
+            int upgradeCounter = 0;
             foreach (var ice in selectedToUpgrade)
             {
-                int upgradeCost = ice.UpgradeCost;
-                foreach (var wall in Defensive.GetWall(game))
-                {
-                    
-                    var sendToUpgradeData = Utils.
-
-                    /*if (!wall.Equals(ice) && wall.CanSendPenguins(ice, upgradeCost) &&
-                        Utils.HelpIcebergData(game, wall, upgradeCost).Count() == 0 && !GameInfo.UpgradedThisTurn(wall.UniqueId))
-                    {
-                        if (Utils.WorstCaseEnemyReinforcment(game, ice, wall.GetTurnsTillArrival(ice)) < upgradeCost)
-                        {
-                            wall.SendPenguins(ice, upgradeCost);
-                        }
-                    }*/
+                if(upgradeCounter == maxUpgradesInTurn){
+                    break;
                 }
+                int upgradeCost = ice.UpgradeCost;
+
+                //! to do if my deltapenguin amount is equal or bigger
+                var sendData = new List<(int,int)>();
+                sendData.Add((upgradeCost,999));
+                Utils.SendAmountWithTurnsLimit(game,ice,sendData);
+                upgradeCounter++;
             }
 
         }

@@ -44,7 +44,9 @@ namespace MyBot
 
             int sumCloseDistance = 0;
             myIcebergCounter -= additon;
-
+            if(myIcebergCounter <= 0){
+                //! do something
+            }
             while (combinedData.Count() > 0)
             {
                 int closest = combinedData.First().Item2;
@@ -59,7 +61,7 @@ namespace MyBot
                 if (myIcebergCounter <= 0)
                 {
                     result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));
-                    //game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
+                    game.Debug($"need to save {iceberg} with {myIcebergCounter*-1 - 1}");
                 }
             }
             return result;
@@ -72,7 +74,7 @@ namespace MyBot
                 int neededAmount = data.Item1;
                 int timeToDeliver = data.Item2;
                 var possibleDefenders = new List<Iceberg>();
-                foreach (var myIceberg in Defensive.GetWall(game))
+                foreach (var myIceberg in Defensive.GetWall(game)) //! myicebergs?
                 {
                     if (!myIceberg.Equals(dest) && dest.GetTurnsTillArrival(myIceberg) <= timeToDeliver && !GameInfo.UpgradedThisTurn(
                         myIceberg.UniqueId) && Utils.HelpIcebergData(game, myIceberg, 0).Count() == 0)

@@ -12,15 +12,15 @@ namespace MyBot
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => enemyIcebergs.Add(x));
             var closest = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).First();
-            //System.Console.WriteLine($"selected ice to attack is {closest}");
-            foreach (var myIce in game.GetMyIcebergs())
+            System.Console.WriteLine($"selected ice to attack is {closest}");
+            foreach (var myIce in game.GetMyIcebergs()) //!do it in a loop and break until attacked
             {
                 int turnsTillArrival = myIce.GetTurnsTillArrival(closest);
                 int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
                 + Utils.WorstCaseEnemyReinforcment(game, closest, myIce.GetTurnsTillArrival(closest)) + 1 -
-                    turnsTillArrival * closest.PenguinsPerTurn; 
+                    turnsTillArrival * closest.PenguinsPerTurn;
                 int deltaPenguins = myIce.PenguinAmount - enemyAmountAtArrival;
-                                                                                // System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
+                // System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
                 if (deltaPenguins > 1 && Utils.HelpIcebergData(game, myIce, enemyAmountAtArrival).Count() == 0)
                 {
                     //System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
@@ -33,12 +33,17 @@ namespace MyBot
             }
         }
 
-        public static void MultiThreadedAttack(Game game)
+        public static void MultiThreadedAttack(Game game) //! NEED TO FIX AGAINST RUDULF MURDER OUR ICEBEGS!
         {
+            if (Defensive.GetWall(game).Length < 2) //!infinite loop?
+            {
+                Offensive.Attack(game);
+            }
             var icesToAttack = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => icesToAttack.Add(x));
             icesToAttack = icesToAttack.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).ToList();
             bool attacked = false;
+
             foreach (var iceToAttack in icesToAttack)
             {
                 var walls = Defensive.GetWall(game).ToList();
@@ -52,12 +57,17 @@ namespace MyBot
                 //System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies /= 2;
                 amountOfEnemies += 1;
+                System.Console.WriteLine($"ice {iceToAttack} turn {worstTurnsUntilArrival} amount {amountOfEnemies}");
                 if (amountOfEnemies < 0)
                 {
+                    System.Console.WriteLine("the f**k negative amount");
                     continue;
                 }
                 //System.Console.WriteLine($"each need to send {amountOfEnemies}");
-                if (walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies)
+                if (Utils.HelpIcebergData(game, walls[0], amountOfEnemies).Count() == 0 &&
+                    Utils.HelpIcebergData(game, walls[1], amountOfEnemies).Count() == 0
+                    &&
+                    walls[0].CanSendPenguins(iceToAttack, amountOfEnemies) && walls[1].CanSendPenguins(iceToAttack, amountOfEnemies)
                     && !GameInfo.UpgradedThisTurn(walls[0].UniqueId) && !GameInfo.UpgradedThisTurn(walls[1].UniqueId))
                 {
 
@@ -79,7 +89,7 @@ namespace MyBot
 
         public static List<(int, int)> GetReinforcmentData(Game game, Iceberg enemyIceberg, int additon, bool upgrade = false)
         {
-            var enemyPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg,enemy: true);
+            var enemyPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg, enemy: true);
             var myPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg, enemy: false);
             var combinedData = new List<(int, int)>();
             var result = new List<(int, int)>();
@@ -90,7 +100,7 @@ namespace MyBot
             enemyPgToTarget.ForEach(pg => combinedData.Add((pg.PenguinAmount, pg.TurnsTillArrival)));
             myPgToTarget.ForEach(pg => combinedData.Add((-pg.PenguinAmount, pg.TurnsTillArrival)));
             combinedData.Sort((u1, u2) => u1.Item2.CompareTo(u2.Item2));
-            foreach(var n in combinedData)
+            foreach (var n in combinedData)
             {
                 System.Console.WriteLine($"{n.Item1}-{n.Item1}");
             }
@@ -118,74 +128,24 @@ namespace MyBot
             System.Console.WriteLine($"iceberg enemy {enemyIceberg} amount of {enemyIcebergCounter}");
             return result;
         }
-        public static void SendReinforcment(Game game,(Iceberg,List<(int,int)>) icebergInDangerData)
+        public static void SendReinforcment(Game game, (Iceberg, List<(int, int)>) icebergToConqureData)
         {
-   
-                var iceToDefend = icebergInDangerData.Item1;
-                var defendeData = icebergInDangerData.Item2;
-
-                foreach (var data in defendeData)
-                {
-                    int neededAmount = data.Item1;
-                    int timeToDeliver = data.Item2;
-                    var possibleDefenders = new List<Iceberg>();
-                    foreach (var myIceberg in Defensive.GetWall(game))
-                    {
-                        if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver && !GameInfo.UpgradedThisTurn(
-                            myIceberg.UniqueId) && Utils.HelpIcebergData(game, myIceberg, 0).Count() == 0)
-                        {
-                            possibleDefenders.Add(myIceberg);
-                        }
-                    }
-                    if (possibleDefenders.Count() > 0)
-                    {
-                        var protectors = new List<(Iceberg, int)>();
-                        int sumDefenders = possibleDefenders.Sum(defender => defender.PenguinAmount);
-                        System.Console.WriteLine($"sum to defend {iceToDefend} is {neededAmount}");
-                        if (sumDefenders >= neededAmount)
-                        {
-                            foreach (var ice in possibleDefenders)
-                            {
-                                double ratio = (double)ice.PenguinAmount / sumDefenders;
-                                int amountToSend = (int)(ratio * neededAmount) + 1;
-                                if (ice.PenguinAmount < amountToSend) { --amountToSend; }
-                                bool safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
-                                while (!safeToSend && amountToSend > 0)
-                                {
-                                    --amountToSend;
-                                    safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
-                                }
-                                if (amountToSend > 0 && ice.CanSendPenguins(iceToDefend, amountToSend))
-                                {
-                                    protectors.Add((ice, amountToSend));
-                                }
-                                if (protectors.Sum(x => x.Item2) >= neededAmount)
-                                {
-                                    foreach (var protector in protectors)
-                                    {
-                                        protector.Item1.SendPenguins(iceToDefend, protector.Item2);
-                                    }
-                                }
-
-                            }
-                        }
-                    }
-                }
+            Utils.SendAmountWithTurnsLimit(game, icebergToConqureData.Item1, icebergToConqureData.Item2);
         }
 
         public static void test1(Game game)
         {
             var attackedEnemyIces = game.GetEnemyIcebergs();
-            foreach(var k in attackedEnemyIces)
+            foreach (var k in attackedEnemyIces)
             {
-                var n = Offensive.GetReinforcmentData(game,k,0);
-                if(n.Count() > 0)
+                var n = Offensive.GetReinforcmentData(game, k, 0);
+                if (n.Count() > 0)
                 {
-                    Offensive.SendReinforcment(game,(k,n));
+                    Offensive.SendReinforcment(game, (k, n));
                     break;
                 }
             }
         }
-  
+
     }
 }
