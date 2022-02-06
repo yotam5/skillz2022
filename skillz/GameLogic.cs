@@ -46,7 +46,7 @@ namespace MyBot
             {
                 Defensive.DefendIcebergs(game);
                 Offensive.MultiThreadedAttack(game);
-                //Offensive.test1(game);
+                Offensive.test1(game);
                 GameLogic.UpgradeRoutine(game);
                 GameLogic.SendToWall(game);
 
@@ -136,7 +136,7 @@ namespace MyBot
             var selectedToUpgrade = new List<Iceberg>();
             foreach (var ice in myIcebergs)
             {
-                System.Console.WriteLine($"ice upgrade is {GameInfo.UpgradedThisTurn(ice.UniqueId)}");
+                //System.Console.WriteLine($"ice upgrade is {GameInfo.UpgradedThisTurn(ice.UniqueId)}");
                 if (!GameInfo.UpgradedThisTurn(ice.UniqueId))
                 {
                     selectedToUpgrade.Add(ice);

@@ -27,7 +27,7 @@ namespace MyBot
                         //System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
                         if (myIce.CanSendPenguins(closest, enemyAmountAtArrival) && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
                         {
-                            System.Console.WriteLine($"selected ice to attack is {closest}");
+                            //System.Console.WriteLine($"selected ice to attack is {closest}");
                             myIce.SendPenguins(closest, enemyAmountAtArrival);
                             break;
                         }
@@ -60,7 +60,7 @@ namespace MyBot
                 //System.Console.WriteLine($"amount of enemies at {iceToAttack} is {amountOfEnemies}");
                 amountOfEnemies /= 2;
                 amountOfEnemies += 1;
-                System.Console.WriteLine($"ice {iceToAttack} turn {worstTurnsUntilArrival} amount {amountOfEnemies}");
+                //System.Console.WriteLine($"ice {iceToAttack} turn {worstTurnsUntilArrival} amount {amountOfEnemies}");
                 if (amountOfEnemies < 0)
                 {
                     System.Console.WriteLine("the f**k negative amount");
@@ -118,12 +118,12 @@ namespace MyBot
                 enemyIcebergCounter += closestGroupDistance * penguinPerTurnRate + arrived.Sum();
                 if (enemyIcebergCounter >= 0)
                 {
-                    System.Console.WriteLine($"COUNTER {enemyIcebergCounter}");
+                    //System.Console.WriteLine($"COUNTER {enemyIcebergCounter}");
                     result.Add((enemyIcebergCounter + 1, sumCloseDistance));
                     //game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
                 }
             }
-            System.Console.WriteLine($"iceberg enemy {enemyIceberg} amount of {enemyIcebergCounter}");
+            //System.Console.WriteLine($"iceberg enemy {enemyIceberg} amount of {enemyIcebergCounter}");
             return result;
         }
         public static void SendReinforcment(Game game, (Iceberg, List<(int, int)>) icebergToConqureData)
@@ -133,12 +133,14 @@ namespace MyBot
 
         public static void test1(Game game)
         {
-            var attackedEnemyIces = game.GetEnemyIcebergs();
+            var attackedEnemyIces = game.GetEnemyIcebergs().ToList();
+            attackedEnemyIces = (from ice in attackedEnemyIces where Utils.GetAttackingGroups(game,ice,false).Count() > 0 select ice).ToList();
             foreach (var k in attackedEnemyIces)
             {
                 var n = Offensive.GetReinforcmentData(game, k, 0);
                 if (n.Count() > 0)
                 {
+                    System.Console.WriteLine($"reinforce {k}");
                     Offensive.SendReinforcment(game, (k, n));
                     break;
                 }
