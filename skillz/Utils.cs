@@ -59,7 +59,7 @@ namespace MyBot
                 if (myIcebergCounter <= 0)
                 {
                     result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));
-                    game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
+                    //game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
                 }
             }
             return result;

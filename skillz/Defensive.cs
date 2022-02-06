@@ -18,7 +18,7 @@ namespace MyBot
             distances.Sort((x, y) => x.Item2.CompareTo(y.Item2));
             foreach (var k in distances)
             {
-                System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
+                //System.Console.WriteLine($"ice {k.Item1} dis {k.Item2}");
             }
             Iceberg[] theWalls = { distances[0].Item1 };
             if (distances.Count() > 1)
@@ -47,14 +47,13 @@ namespace MyBot
                     foreach (var myIceberg in GetWall(game))
                     {
                         if (!myIceberg.Equals(iceToDefend) && iceToDefend.GetTurnsTillArrival(myIceberg) <= timeToDeliver && !GameInfo.UpgradedThisTurn(
-                            myIceberg.UniqueId
-                        ))
-                        {
+                            myIceberg.UniqueId) && Utils.HelpIcebergData(game,myIceberg,0).Count() == 0)                        {
                             possibleDefenders.Add(myIceberg);
                         }
                     }
                     if (possibleDefenders.Count() > 0)
                     {
+                        var protectors = new List<(Iceberg,int)>();
                         int sumDefenders = possibleDefenders.Sum(defender => defender.PenguinAmount);
                         if (sumDefenders >= neededAmount)
                         {
@@ -69,8 +68,17 @@ namespace MyBot
                                     --amountToSend;
                                     safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
                                 }
-                                ice.SendPenguins(iceToDefend, amountToSend);
-                            }
+                                if(amountToSend > 0 && ice.CanSendPenguins(iceToDefend,amountToSend))
+                                {
+                                    protectors.Add((ice,amountToSend));
+                                }
+                                if(protectors.Sum(x=>x.Item2) >= neededAmount)
+                                {
+                                    foreach(var protector in protectors)
+                                    {
+                                        protector.Item1.SendPenguins(iceToDefend,protector.Item2);
+                                    }
+                                }
                         }
                     }
                 }
@@ -78,6 +86,6 @@ namespace MyBot
 
         }
     }
-
+}
 }
 

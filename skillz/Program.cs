@@ -9,7 +9,6 @@ namespace MyBot {
     //lvl3 28
     //lvl4 35?
 
-    //! add in real time reinforcment!
     //TODO: decoy attacks and to detect them
     //TODO: track info about how the player plays in this bot and act accordingly
     //TODO: prevent enemy icebergs from upgrading icebergs by in sea collision or attacking
