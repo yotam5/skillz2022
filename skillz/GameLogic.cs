@@ -127,10 +127,8 @@ namespace MyBot
 
         public static void SendForUpgrade(Game game)
         {
-            if(GameLogic.DeltaPenguinsRate(game) >= 0){
-                return ;
-            }
             const int maxUpgradesInTurn = 1; //!
+            if(GameLogic.DeltaPenguinAmount(game) > 0){
             var myIcebergs = game.GetMyIcebergs().ToList();
             //game.GetNeutralIcebergs().ToList().ForEach(x => myIcebergs.Add(x));
             myIcebergs = (from ice in myIcebergs where ice.Level <  4 select ice).ToList();
@@ -157,6 +155,7 @@ namespace MyBot
                 sendData.Add((upgradeCost,999));
                 Utils.SendAmountWithTurnsLimit(game,ice,sendData);
                 upgradeCounter++;
+            }
             }
 
         }

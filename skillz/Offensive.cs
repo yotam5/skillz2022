@@ -11,24 +11,28 @@ namespace MyBot
         {
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => enemyIcebergs.Add(x));
-            var closest = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).First();
-            System.Console.WriteLine($"selected ice to attack is {closest}");
-            foreach (var myIce in game.GetMyIcebergs()) //!do it in a loop and break until attacked
+            var orderedTargets = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x));
+            foreach (var closest in orderedTargets)
             {
-                int turnsTillArrival = myIce.GetTurnsTillArrival(closest);
-                int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
-                + Utils.WorstCaseEnemyReinforcment(game, closest, myIce.GetTurnsTillArrival(closest)) + 1 -
-                    turnsTillArrival * closest.PenguinsPerTurn;
-                int deltaPenguins = myIce.PenguinAmount - enemyAmountAtArrival;
-                // System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
-                if (deltaPenguins > 1 && Utils.HelpIcebergData(game, myIce, enemyAmountAtArrival).Count() == 0)
+                foreach (var myIce in game.GetMyIcebergs()) 
                 {
-                    //System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
-                    if (myIce.CanSendPenguins(closest, enemyAmountAtArrival) && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
+                    int turnsTillArrival = myIce.GetTurnsTillArrival(closest);
+                    int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
+                    + Utils.WorstCaseEnemyReinforcment(game, closest, myIce.GetTurnsTillArrival(closest)) + 1 -
+                        turnsTillArrival * closest.PenguinsPerTurn;
+                    int deltaPenguins = myIce.PenguinAmount - enemyAmountAtArrival;
+                    // System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
+                    if (deltaPenguins > 1 && Utils.HelpIcebergData(game, myIce, enemyAmountAtArrival).Count() == 0)
                     {
-                        myIce.SendPenguins(closest, enemyAmountAtArrival);
-                    }
+                        //System.Console.WriteLine($"iceberg {myIce} amount {myIce.PenguinAmount} acted {myIce.AlreadyActed} send {enemyAmountAtArrival}");
+                        if (myIce.CanSendPenguins(closest, enemyAmountAtArrival) && !GameInfo.UpgradedThisTurn(myIce.UniqueId))
+                        {
+                            System.Console.WriteLine($"selected ice to attack is {closest}");
+                            myIce.SendPenguins(closest, enemyAmountAtArrival);
+                            break;
+                        }
 
+                    }
                 }
             }
         }
@@ -42,7 +46,6 @@ namespace MyBot
             var icesToAttack = game.GetEnemyIcebergs().ToList();
             game.GetNeutralIcebergs().ToList().ForEach(x => icesToAttack.Add(x));
             icesToAttack = icesToAttack.OrderBy(x => Utils.AverageDistanceFromWall(game, x)).ToList();
-            bool attacked = false;
 
             foreach (var iceToAttack in icesToAttack)
             {
@@ -73,16 +76,11 @@ namespace MyBot
 
                     walls[0].SendPenguins(iceToAttack, amountOfEnemies);
                     walls[1].SendPenguins(iceToAttack, amountOfEnemies);
-                    attacked = true;
                 }
                 else
                 {
-                    //System.Console.WriteLine($"cannot send a godman {amountOfEnemies}");
+                    System.Console.WriteLine($"cannot send a godman {amountOfEnemies}");
                 }
-            }
-            if (!attacked)
-            {
-                Offensive.Attack(game);
             }
 
         }
