@@ -77,40 +77,45 @@ namespace MyBot
 
         }
 
-        public static List<(int, int)> GetReinforcmentData(Game game, Iceberg iceberg, int additon, bool upgrade = false)
+        public static List<(int, int)> GetReinforcmentData(Game game, Iceberg enemyIceberg, int additon, bool upgrade = false)
         {
-            var enemyPgToTarget = Utils.GetAttackingGroups(game, iceberg);
-            var myPgToTarget = Utils.GetAttackingGroups(game, iceberg, false);
+            var enemyPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg,enemy: true);
+            var myPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg, enemy: false);
             var combinedData = new List<(int, int)>();
             var result = new List<(int, int)>();
             int myId = game.GetMyself().Id;
-            int penguinPerTurnRate = iceberg.PenguinsPerTurn;
-            int myIcebergCounter = iceberg.PenguinAmount;
-            if (upgrade) { penguinPerTurnRate += iceberg.UpgradeValue; myIcebergCounter -= iceberg.UpgradeCost + 1; }
+            int penguinPerTurnRate = enemyIceberg.PenguinsPerTurn;
+            int enemyIcebergCounter = enemyIceberg.PenguinAmount;
+            if (upgrade) { penguinPerTurnRate += enemyIceberg.UpgradeValue; enemyIcebergCounter -= enemyIceberg.UpgradeCost + 1; }
             enemyPgToTarget.ForEach(pg => combinedData.Add((pg.PenguinAmount, pg.TurnsTillArrival)));
             myPgToTarget.ForEach(pg => combinedData.Add((-pg.PenguinAmount, pg.TurnsTillArrival)));
             combinedData.Sort((u1, u2) => u1.Item2.CompareTo(u2.Item2));
-
+            foreach(var n in combinedData)
+            {
+                System.Console.WriteLine($"{n.Item1}-{n.Item1}");
+            }
             int sumCloseDistance = 0;
-            myIcebergCounter -= additon;
+            enemyIcebergCounter -= additon;
 
             while (combinedData.Count() > 0)
             {
-                int closest = combinedData.First().Item2;
-                sumCloseDistance += closest;
+                int closestGroupDistance = combinedData.First().Item2;
+                sumCloseDistance += closestGroupDistance;
                 for (int i = 0; i < combinedData.Count(); i++)
                 {
-                    combinedData[i] = (combinedData[i].Item1, combinedData[i].Item2 - closest);
+                    combinedData[i] = (combinedData[i].Item1, combinedData[i].Item2 - closestGroupDistance);
                 }
                 var arrived = (from pg in combinedData where pg.Item2 == 0 select pg.Item1).ToList();
                 for (int i = arrived.Count(); i > 0; i--, combinedData.RemoveAt(0)) ;
-                myIcebergCounter += closest * penguinPerTurnRate + arrived.Sum();
-                if (myIcebergCounter <= 0)
+                enemyIcebergCounter += closestGroupDistance * penguinPerTurnRate + arrived.Sum();
+                if (enemyIcebergCounter >= 0)
                 {
-                    result.Add((-1 * myIcebergCounter + 1, sumCloseDistance));
+                    System.Console.WriteLine($"COUNTER {enemyIcebergCounter}");
+                    result.Add((enemyIcebergCounter + 1, sumCloseDistance));
                     //game.Debug($"need to save {iceberg} with {myIcebergCounter - 1}");
                 }
             }
+            System.Console.WriteLine($"iceberg enemy {enemyIceberg} amount of {enemyIcebergCounter}");
             return result;
         }
         public static void SendReinforcment(Game game,(Iceberg,List<(int,int)>) icebergInDangerData)
@@ -136,6 +141,7 @@ namespace MyBot
                     {
                         var protectors = new List<(Iceberg, int)>();
                         int sumDefenders = possibleDefenders.Sum(defender => defender.PenguinAmount);
+                        System.Console.WriteLine($"sum to defend {iceToDefend} is {neededAmount}");
                         if (sumDefenders >= neededAmount)
                         {
                             foreach (var ice in possibleDefenders)
@@ -169,11 +175,15 @@ namespace MyBot
 
         public static void test1(Game game)
         {
-            var attackedNeutralIcebergs = game.GetEnemyIcebergs();
-            foreach(var k in attackedNeutralIcebergs)
+            var attackedEnemyIces = game.GetEnemyIcebergs();
+            foreach(var k in attackedEnemyIces)
             {
                 var n = Offensive.GetReinforcmentData(game,k,0);
-                Offensive.SendReinforcment(game,(k,n));
+                if(n.Count() > 0)
+                {
+                    Offensive.SendReinforcment(game,(k,n));
+                    break;
+                }
             }
         }
   
