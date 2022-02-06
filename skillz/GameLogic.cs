@@ -13,7 +13,7 @@ namespace MyBot
             if (game.Turn == 1)
             {
                 game.GetMyIcebergs()[0].Upgrade();
-                System.Console.WriteLine($"{game.GetMyIcebergs()[0].UniqueId}");
+                //System.Console.WriteLine($"{game.GetMyIcebergs()[0].UniqueId}");
                 GameInfo.InitializeUpgradeDict(game);
 
             }
@@ -44,22 +44,11 @@ namespace MyBot
             }
             else if ( game.Turn >= 23)
             {
-                if(GameLogic.DeltaPenguinsRate(game) <= 0 || GameLogic.DeltaPenguinAmount(game) <= 0)
-                {
                 Defensive.DefendIcebergs(game);
+                Offensive.test1(game);
+                Offensive.Attack(game);
                 GameLogic.UpgradeRoutine(game);
-                GameLogic.SendForUpgrade(game);
-                Offensive.MultiThreadedAttack(game);
                 GameLogic.SendToWall(game);  
-                }
-                else
-                {
-                    Defensive.DefendIcebergs(game);
-                    Offensive.MultiThreadedAttack(game);
-                    GameLogic.UpgradeRoutine(game);
-                    GameLogic.SendForUpgrade(game);
-                    GameLogic.SendToWall(game);  
-                }
 
             }
             GameInfo.EndTurn(game);
@@ -157,18 +146,17 @@ namespace MyBot
             bool choosen = false;
             foreach(var ice in myIcebergs)//! defense was sent note?
             {   
-                int groupsOnDaWay = Utils.GetAttackingGroups(game,ice,enemy:false).Sum(x=>x.PenguinAmount);
-                if(groupsOnDaWay <= ice.UpgradeCost)
+                if(!GameInfo.UpgradedThisTurn(ice.UniqueId))
                 {
-                    System.Console.WriteLine($"choosen iceberg {ice} for an upgrade");
                     selected = ice;
                     choosen = true;
                     break;
                 }
+
             }
             if(!choosen)
             {
-                System.Console.WriteLine("breaking bad");
+                //System.Console.WriteLine("breaking bad");
                 return;
             }  
             if(selected.Level < 4)
