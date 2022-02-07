@@ -28,6 +28,13 @@ namespace MyBot
             return pgList;
         }
 
+        /// <summary>
+        /// return data to help iceberg that is about to be conqured
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="iceberg">our iceberg to check</param>
+        /// <param name="additon">to substruct aount</param>
+        /// <param name="upgrade">calculate with the upgrade rate and cost</param>
         public static List<(int, int)> HelpIcebergData(Game game, Iceberg iceberg, int additon, bool upgrade = false)
         {
             var enemyPgToTarget = Utils.GetAttackingGroups(game, iceberg);
@@ -45,6 +52,7 @@ namespace MyBot
             int sumCloseDistance = 0;
             myIcebergCounter -= additon;
             if(myIcebergCounter <= 0){
+                System.Console.WriteLine("the actual fu**");
                 //! do something
             }
             while (combinedData.Count() > 0)
@@ -67,6 +75,12 @@ namespace MyBot
             return result;
         }
 
+        /// <summary>
+        /// send needed amount with turn limit
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="dest"></param>
+        /// <param name="dataToSend"></param>
         public static void SendAmountWithTurnsLimit(Game game, Iceberg dest, List<(int, int)> dataToSend)
         {
             foreach (var data in dataToSend)
@@ -117,6 +131,13 @@ namespace MyBot
             }
         }
 
+        /// <summary>
+        /// calculate the worst case senario of enemy reinforcment with turn limitation
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="destIce">destination iceberg</param>
+        /// <param name="turnsTillArrival">turn limitation</param>
+        /// <returns>worst case enemy reinforcment</returns>
         public static int WorstCaseEnemyReinforcment(Game game, Iceberg destIce, int turnsTillArrival)
         {
             var enemyIcebergs = game.GetEnemyIcebergs();
@@ -137,6 +158,13 @@ namespace MyBot
             return totalEnemies;
         }
 
+        /// <summary>
+        /// calcualte the amount of enemy penguins at arrival
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="destination"></param>
+        /// <param name="turnsTillArrival"></param>
+        /// <returns>enemy penguins at arrival</returns>
         public static int EnemyPenguinAmountAtArrival(Game game, Iceberg destination, int turnsTillArrival)
         {
             int destAmount = destination.PenguinAmount;
@@ -158,6 +186,12 @@ namespace MyBot
             }
         }
 
+        /// <summary>
+        /// calculate the average distance from the walls
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="iceberg"></param>
+        /// <returns>double average distance from the wall</returns>
         public static double AverageDistanceFromWall(Game game, Iceberg iceberg)
         {
             double totalDistance = 0;
@@ -169,6 +203,11 @@ namespace MyBot
             return totalDistance / (walls.Count());
         }
 
+        /// <summary>
+        /// find all icebergs that are in dangered by the enemy(to be conqured)
+        /// </summary>
+        /// <param name="game"></param>
+        /// <returns>List that contains tuple of iceberg dest with (amount,turn limit)<returns>
         public static List<(Iceberg, List<(int, int)>)> GetIcebergsInDanger(Game game)
         {
             var icebergsInDanger = new List<(Iceberg, List<(int, int)>)>();
@@ -183,6 +222,12 @@ namespace MyBot
             return icebergsInDanger;
         }
 
+        /// <summary>
+        /// the average distance from all of the enemy icebergs
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="iceberg"></param>
+        /// <returns>double average distance from enemy</returns>
         public static double AverageDistanceFromEnemy(Game game, Iceberg iceberg)
         {
             double distance = 0;
@@ -198,6 +243,12 @@ namespace MyBot
             return distance / (enemIcbergs.Length - sub);
         }
 
+        /// <summary>
+        /// calcualte the average distance from my icebergs
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="iceberg">iceberg to check</param>
+        /// <returns>double average distance from my icebergs</returns>
         public static double AverageDistanceFromMyIcbergs(Game game, Iceberg iceberg)
         {
             double distance = 0;
@@ -214,6 +265,13 @@ namespace MyBot
             return distance / myIcbergs.Length;
         }
 
+        /// <summary>
+        /// calculate the iceberg priority
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="iceberg">iceberg to check pritority</param>
+        /// <param name="lf">level factor</param>
+        /// <returns></returns>
         public static double GetIcebergPriority(Game game, Iceberg iceberg, double lf = 20)
         {
             return (iceberg.Level * lf) + Utils.AverageDistanceFromWall(game, iceberg);

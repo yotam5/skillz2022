@@ -7,6 +7,10 @@ namespace MyBot
 {
     public static class Offensive
     {
+        /// <summary>
+        /// check if each individual iceberg can attack if so, fuck so
+        /// </summary>
+        /// <param name="game"></param>
         public static void Attack(Game game)
         {
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
@@ -29,14 +33,17 @@ namespace MyBot
                         {
                             //System.Console.WriteLine($"selected ice to attack is {closest}");
                             myIce.SendPenguins(closest, enemyAmountAtArrival);
-                            break;
                         }
-
                     }
                 }
             }
         }
 
+
+        /// <summary>
+        /// check if can attack one icebergs with the walls
+        /// </summary>
+        /// <param name="game"></param>
         public static void MultiThreadedAttack(Game game) //! NEED TO FIX AGAINST RUDULF MURDER OUR ICEBEGS!
         {
             if (Defensive.GetWall(game).Length < 2) //!infinite loop?
@@ -85,6 +92,13 @@ namespace MyBot
 
         }
 
+        /// <summary>
+        /// check if the enemy send reinforcment to attacked iceberg, return a list if so
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="enemyIceberg"></param>
+        /// <param name="additon"></param>
+        /// <param name="upgrade"></param>
         public static List<(int, int)> GetReinforcmentData(Game game, Iceberg enemyIceberg, int additon, bool upgrade = false)
         {
             var enemyPgToTarget = Utils.GetAttackingGroups(game, enemyIceberg, enemy: true);
@@ -98,10 +112,10 @@ namespace MyBot
             enemyPgToTarget.ForEach(pg => combinedData.Add((pg.PenguinAmount, pg.TurnsTillArrival)));
             myPgToTarget.ForEach(pg => combinedData.Add((-pg.PenguinAmount, pg.TurnsTillArrival)));
             combinedData.Sort((u1, u2) => u1.Item2.CompareTo(u2.Item2));
-            foreach (var n in combinedData)
+            /*foreach (var n in combinedData)
             {
                 System.Console.WriteLine($"{n.Item1}-{n.Item1}");
-            }
+            }*/
             int sumCloseDistance = 0;
             enemyIcebergCounter -= additon;
 
@@ -126,11 +140,21 @@ namespace MyBot
             //System.Console.WriteLine($"iceberg enemy {enemyIceberg} amount of {enemyIcebergCounter}");
             return result;
         }
+
+        /// <summary>
+        /// send the reinforcment
+        /// </summary>
+        /// <param name="game"></param>
+        /// <param name="icebergToConqureData"></param>
         public static void SendReinforcment(Game game, (Iceberg, List<(int, int)>) icebergToConqureData)
         {
             Utils.SendAmountWithTurnsLimit(game, icebergToConqureData.Item1, icebergToConqureData.Item2);
         }
 
+        /// <summary>
+        /// actually send the reinforcment
+        /// </summary>
+        /// <param name="game"></param>
         public static void test1(Game game)
         {
             var attackedEnemyIces = game.GetEnemyIcebergs().ToList();
@@ -142,7 +166,6 @@ namespace MyBot
                 {
                     System.Console.WriteLine($"reinforce {k}");
                     Offensive.SendReinforcment(game, (k, n));
-                    break;
                 }
             }
         }

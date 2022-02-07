@@ -7,6 +7,11 @@ namespace MyBot
 {
     public static class Defensive
     {
+        /// <summary>
+        /// return array that contain the wall
+        /// </summary>
+        /// <param name="game"></param>
+        /// <returns>Iceberg[] containing the wall</returns>
         public static Iceberg[] GetWall(Game game)
         {
             var distances = new List<(Iceberg, double)>();
@@ -29,15 +34,18 @@ namespace MyBot
             return theWalls;
         }
 
+        /// <summary>
+        /// defend our icebergs
+        /// </summary>
+        /// <param name="game"></param>
         public static void DefendIcebergs(Game game)
         {
             var icebergsInDanger = Utils.GetIcebergsInDanger(game);
             //TODO: improve priority
             icebergsInDanger = icebergsInDanger.OrderByDescending(x => Utils.GetIcebergPriority(game, x.Item1)).ToList();
-            System.Console.WriteLine("defend");
             foreach(var ice in icebergsInDanger)
             {
-                System.Console.WriteLine($"danger ice {ice}");
+                //System.Console.WriteLine($"danger ice {ice}");
                 if(Utils.HelpIcebergData(game,ice.Item1,0,true).Count() == 0)
                 {
                     //! need to upgrade if possible
