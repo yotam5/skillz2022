@@ -11,6 +11,7 @@ namespace MyBot
         /// check if each individual iceberg can attack if so, fuck so
         /// </summary>
         /// <param name="game"></param>
+        /// !need to fix IMPORTANT: track icebergs that already have been attacked!
         public static void Attack(Game game)
         {
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
