@@ -53,7 +53,10 @@ namespace MyBot
             }
             foreach(var icebergInDangerData in icebergsInDanger)
             {
-                Utils.SendAmountWithTurnsLimit(game,icebergInDangerData.Item1,icebergInDangerData.Item2);
+                if(!Utils.SendAmountWithTurnsLimit(game,icebergInDangerData.Item1,icebergInDangerData.Item2))
+                {
+                    
+                }
             }
         }
     }

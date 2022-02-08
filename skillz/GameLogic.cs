@@ -16,6 +16,7 @@ namespace MyBot
                 game.GetMyIcebergs()[0].Upgrade();
                 //System.Console.WriteLine($"{game.GetMyIcebergs()[0].UniqueId}");
                 GameInfo.InitializeUpgradeDict(game);
+                GameInfo.InitializeAttckedEnemyIcebergs(game);
 
             }
             else if (game.Turn == 7)
@@ -69,7 +70,7 @@ namespace MyBot
         public static void SendToWall(Game game)
         {
             var wallIce = Defensive.GetWall(game);
-            if (wallIce.Length == 1) { return; }
+            if (wallIce.Length < 2) { return; }
             foreach (var myIce in game.GetMyIcebergs())
             {
                 if (!myIce.Equals(wallIce[0]) && !myIce.Equals(wallIce[1]))

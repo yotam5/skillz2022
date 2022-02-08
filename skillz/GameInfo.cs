@@ -8,6 +8,29 @@ namespace MyBot
     {
         //!need to add attacked icebergs
         private static Dictionary<int,bool> upgradedThisTurn = new Dictionary<int, bool>();
+        private static Dictionary<int,bool> attackedIcebergsByUs = new Dictionary<int, bool>();
+        
+        public static void InitializeAttckedEnemyIcebergs(Game game)
+        {
+            foreach(var ice in game.GetEnemyIcebergs())
+            {
+                attackedIcebergsByUs.Add(ice.UniqueId,false);
+            }
+            foreach(var ice in game.GetNeutralIcebergs())
+            {
+                attackedIcebergsByUs.Add(ice.UniqueId,false);
+            }
+        }
+        
+        public static void UpdateAttackedIcebergsByUs(Iceberg enemyIceberg,bool state)
+        {
+            attackedIcebergsByUs[enemyIceberg.UniqueId] = state;
+        }
+
+        public static bool IsAttackedByUs(Iceberg enemyIceberg)
+        {
+            return attackedIcebergsByUs[enemyIceberg.UniqueId];
+        }
 
         public static void InitializeUpgradeDict(Game game)
         {

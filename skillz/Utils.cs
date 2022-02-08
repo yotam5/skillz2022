@@ -51,7 +51,8 @@ namespace MyBot
 
             int sumCloseDistance = 0;
             myIcebergCounter -= additon;
-            if(myIcebergCounter <= 0){
+            if (myIcebergCounter <= 0)
+            {
                 System.Console.WriteLine("the actual fu**");
                 //! do something
             }
@@ -81,8 +82,9 @@ namespace MyBot
         /// <param name="game"></param>
         /// <param name="dest"></param>
         /// <param name="dataToSend"></param>
-        public static void SendAmountWithTurnsLimit(Game game, Iceberg dest, List<(int, int)> dataToSend)
+        public static bool SendAmountWithTurnsLimit(Game game, Iceberg dest, List<(int, int)> dataToSend)
         {
+            bool sent = false;
             foreach (var data in dataToSend)
             {
                 int neededAmount = data.Item1;
@@ -113,24 +115,24 @@ namespace MyBot
                                 --amountToSend;
                                 safeToSend = Utils.HelpIcebergData(game, ice, amountToSend).Count() == 0;
                             }
-                            if (amountToSend > 0 && ice.CanSendPenguins(dest, amountToSend))
+                            if (amountToSend > 0 && ice.CanSendPenguins(dest, amountToSend) && !GameInfo.UpgradedThisTurn(ice.UniqueId))
                             {
                                 actuallyCanSend.Add((ice, amountToSend));
                             }
-                            if (actuallyCanSend.Sum(x => x.Item2) >= neededAmount)
+                        }
+                        if (actuallyCanSend.Sum(x => x.Item2) >= neededAmount)
+                        {
+                            sent = true;
+                            foreach (var protector in actuallyCanSend)
                             {
-                                foreach (var protector in actuallyCanSend)
-                                {
-                                    protector.Item1.SendPenguins(dest, protector.Item2);
-                                }
+                                protector.Item1.SendPenguins(dest, protector.Item2);
                             }
-
                         }
                     }
                 }
             }
+            return sent;
         }
-
         /// <summary>
         /// calculate the worst case senario of enemy reinforcment with turn limitation
         /// </summary>

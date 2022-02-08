@@ -11,7 +11,7 @@ namespace MyBot
         /// check if each individual iceberg can attack if so, fuck so
         /// </summary>
         /// <param name="game"></param>
-        /// !need to fix IMPORTANT: track icebergs that already have been attacked!
+        /// !need to fix IMPORTANT: track icebergs that already have been attacked!, fixed?
         public static void Attack(Game game)
         {
             var enemyIcebergs = game.GetEnemyIcebergs().ToList();
@@ -19,13 +19,32 @@ namespace MyBot
             var orderedTargets = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x));
             foreach (var closest in orderedTargets)
             {
-                foreach (var myIce in game.GetMyIcebergs()) 
+                if(GameInfo.IsAttackedByUs(closest)) //!note
+                {
+                    System.Console.WriteLine("already attacked by us");
+                    continue;
+                }
+                for(int i= 2; i < 25;i++){
+                    int turnsTillArrival = i;
+                    int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
+                    + Utils.WorstCaseEnemyReinforcment(game, closest, turnsTillArrival) + 1 -
+                        turnsTillArrival * closest.PenguinsPerTurn;
+                    var dataToSend = new List<(int,int)>();
+                    dataToSend.Add((enemyAmountAtArrival,turnsTillArrival));
+                    if(Utils.SendAmountWithTurnsLimit(game,closest,dataToSend))
+                    {
+                        GameInfo.UpdateAttackedIcebergsByUs(closest,true);
+                        break;
+                    }
+                }
+                /*foreach (var myIce in game.GetMyIcebergs()) 
                 {
                     int turnsTillArrival = myIce.GetTurnsTillArrival(closest);
                     int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
                     + Utils.WorstCaseEnemyReinforcment(game, closest, myIce.GetTurnsTillArrival(closest)) + 1 -
                         turnsTillArrival * closest.PenguinsPerTurn;
                     int deltaPenguins = myIce.PenguinAmount - enemyAmountAtArrival;
+                    //if(Utils.SendAmountWithTurnsLimit(game,closest,))
                     // System.Console.WriteLine($"delta {deltaPenguins} enemyarrival {enemyAmountAtArrival} turns is {turnsTillArrival}");
                     if (deltaPenguins > 1 && Utils.HelpIcebergData(game, myIce, enemyAmountAtArrival).Count() == 0)
                     {
@@ -34,9 +53,10 @@ namespace MyBot
                         {
                             //System.Console.WriteLine($"selected ice to attack is {closest}");
                             myIce.SendPenguins(closest, enemyAmountAtArrival);
+                            GameInfo.UpdateEnemyAttackedIcebergs(closest,true);
                         }
                     }
-                }
+                }*/
             }
         }
 
@@ -157,7 +177,7 @@ namespace MyBot
         /// </summary>
         /// <param name="game"></param>
         public static void test1(Game game)
-        {
+        {   
             var attackedEnemyIces = game.GetEnemyIcebergs().ToList();
             attackedEnemyIces = (from ice in attackedEnemyIces where Utils.GetAttackingGroups(game,ice,false).Count() > 0 select ice).ToList();
             foreach (var k in attackedEnemyIces)
