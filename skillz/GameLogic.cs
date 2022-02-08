@@ -50,12 +50,18 @@ namespace MyBot
             }
             else if (game.Turn >= 23)
             {
+                GameInfo.UpdateAttackedByus(game);
                 Defensive.DefendIcebergs(game);
-                Offensive.MultiThreadedAttack(game);
+                //Offensive.MultiThreadedAttack(game);
                 Offensive.Attack(game);
+                Defensive.DefendIcebergs(game);
                 Offensive.test1(game);
+                Defensive.DefendIcebergs(game);
                 GameLogic.UpgradeRoutine(game);
+                Defensive.DefendIcebergs(game);
                 GameLogic.SendToWall(game);
+                Defensive.DefendIcebergs(game);
+
 
             }
             GameInfo.EndTurn(game);

@@ -32,6 +32,14 @@ namespace MyBot
             return attackedIcebergsByUs[enemyIceberg.UniqueId];
         }
 
+        public static void UpdateAttackedByus(Game game)
+        {
+            foreach(var myIce in game.GetMyIcebergs())
+            {
+                attackedIcebergsByUs[myIce.UniqueId] = false;
+            }
+        }
+
         public static void InitializeUpgradeDict(Game game)
         {
             foreach(var myIce in game.GetAllIcebergs())

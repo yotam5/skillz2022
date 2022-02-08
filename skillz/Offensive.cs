@@ -19,6 +19,7 @@ namespace MyBot
             var orderedTargets = enemyIcebergs.OrderBy(x => Utils.AverageDistanceFromWall(game, x));
             foreach (var closest in orderedTargets)
             {
+                System.Console.WriteLine($"closest {closest}");
                 if(GameInfo.IsAttackedByUs(closest)) //!note
                 {
                     System.Console.WriteLine("already attacked by us");
@@ -29,8 +30,9 @@ namespace MyBot
                     int enemyAmountAtArrival = Utils.EnemyPenguinAmountAtArrival(game, closest, turnsTillArrival)
                     + Utils.WorstCaseEnemyReinforcment(game, closest, turnsTillArrival) + 1 -
                         turnsTillArrival * closest.PenguinsPerTurn;
+                    System.Console.WriteLine($"{enemyAmountAtArrival} in turn {i}");
                     var dataToSend = new List<(int,int)>();
-                    dataToSend.Add((enemyAmountAtArrival,turnsTillArrival));
+                    dataToSend.Add((enemyAmountAtArrival,turnsTillArrival));    
                     if(Utils.SendAmountWithTurnsLimit(game,closest,dataToSend))
                     {
                         GameInfo.UpdateAttackedIcebergsByUs(closest,true);
