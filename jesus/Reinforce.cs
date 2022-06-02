@@ -13,6 +13,9 @@ namespace MyBot
 
         public Reinforce(SmartIceberg source, SmartIceberg dest, int penguinAmount)
         {
+            if(penguinAmount == 0){
+                System.Console.WriteLine("can reinforce with 0 pg");
+            }
             this.source = source;
             this.destination = dest;
             this.requiredPenguinAmount = penguinAmount;
@@ -41,6 +44,11 @@ namespace MyBot
 
         public int PenguinsRequired(){
             return this.requiredPenguinAmount;
+        }
+
+        public int TaskTurns()
+        {
+            return 0;
         }
 
     }

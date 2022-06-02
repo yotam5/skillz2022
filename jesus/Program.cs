@@ -17,31 +17,87 @@ namespace MyBot
         /// <param name="game">the current game state</param>
         public void DoTurn(Game game)
         {
-            InitializeGameInfo(game);
-            Utils.ConfigureIcebergs();
 
-            var m = MissionManager.AllMissions().OrderBy(x=>x.Benefit()).Reverse().ToList();
-            for(int i = 0; i < m.Count() && i < 2;i++)
+            System.Console.WriteLine("line1");
+            InitializeGameInfo(game);
+            System.Console.WriteLine("line2");
+
+            if(extream())
             {
-                var nn = m[i];
-                System.Console.WriteLine(nn);
-                var tmp = nn.GetExecutionWays();
-                foreach(var w in tmp)
+                return;
+            }
+            
+            if(game.Turn == 1){
+                var k = game.GetMyIcebergs()[0];
+                if(k.CanUpgrade()){
+                    k.Upgrade();
+                    return;
+                }
+            }
+            System.Console.WriteLine("line3");
+
+            //Utils.ConfigureIcebergs();
+            if(game.Turn>=280 && game.GetMyself().Score <= game.GetEnemy().Score)
+            {
+                Utils.allornothing();
+            }
+            System.Console.WriteLine("line4");
+
+            Utils.CalculateMissions();
+            System.Console.WriteLine("line5");
+
+            MissionManager.UpdateActiveMissions();
+                    System.Console.WriteLine("line6");
+
+            MissionManager.DistributionTasksForIcebergs();
+            System.Console.WriteLine("line7");
+
+
+            var w = Utils.GetWalls();
+
+            foreach (var ice in GameInfo.Icebergs.myIcebergs.ToList())
+            {
+                if(!w.Contains(ice) && ice.Level >= 4 ||
+                    (game.Turn < 36 && ice.Level >= 2 && ice.PenguinAmount >= 6))
                 {
-                    if(w.CanBePerformed()){
-                        System.Console.WriteLine("performe" + w);
-                        var t2 = w.GetTasks();
-                        foreach(var t3 in t2){
-                            t3.Performe();
+                    int amount = ice.PenguinAmount - 1;
+                    if(ice.Level == 4){
+                        amount = ice.PenguinAmount - 1;
+                    }
+                    var s = w.OrderBy(x=>x.GetIncomingFriendlyGroups().Count());
+                    foreach(var ww in s)
+                    {
+                        if(ice.CanSendPenguins(ww,amount) && ice.PreventConqure(addition:amount).Count() == 0
+                        && !ice.Upgraded)
+                        {
+                            ice.SendPenguins(ww,amount);
                         }
-                        break;
                     }
                 }
             }
-            
+
         }
 
-
+        public bool extream()
+        {
+            var myIce = GameInfo.Icebergs.myIcebergs.ToList();
+            var enemyIce = GameInfo.Icebergs.enemyIcebergs.ToList();
+            var ss = myIce.First();
+            if(myIce.Count() == 1){
+                var closestNeutral = GameInfo.Icebergs.neutralIcebergs.OrderBy(x=>x.GetTurnsTillArrival(ss)).ToList().First();
+                if(closestNeutral.GetTurnsTillArrival(ss) >= ss.GetTurnsTillArrival(enemyIce.First()))
+                {
+                    int tta = ss.GetTurnsTillArrival(enemyIce.First());
+                    if(enemyIce.First().PotentialBackup(tta,enemyIce.First().Owner.Id) + 1 < ss.PenguinAmount)
+                    {
+                        ss.SendPenguins(enemyIce.First(),enemyIce.First().PotentialBackup(tta,enemyIce.First().Owner.Id) + 1);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         public void InitializeGameInfo(Game game)
         {
             //players
@@ -59,15 +115,23 @@ namespace MyBot
             GameInfo.Icebergs.threatenedIcebergs = Utils.GetMyDangeredIcebergs();
             //penguins groups
             GameInfo.PenguinGroups.myPenguinGroups = game.GetMyPenguinGroups().ToList();
-            GameInfo.PenguinGroups.enemyPenguinGroups = game.GetEnemyPenguinGroups().ToList();
-            GameInfo.PenguinGroups.allPenguinGroup = game.GetAllPenguinGroups().ToList();
+            GameInfo.PenguinGroups.enemyPenguinGroups = (from pg in game.GetEnemyPenguinGroups() where !pg.Decoy select pg).ToList();
+            GameInfo.PenguinGroups.allPenguinGroup = (from pg in game.GetAllPenguinGroups() where !pg.Decoy select pg).ToList();
             //GameInfo.Icebergs.threatenedIcebergs = Utils.ConvertToSmartIceberg(G)
             GameInfo.Game.maxTurns = game.MaxTurns;
             GameInfo.Game.turn = game.Turn;
             GameInfo.Game.turnsLeft = game.MaxTurns - game.Turn;
             //groups
             GameInfo.Groups.allMissions = MissionManager.AllMissions();
-
+            //bonus
+            GameInfo.Bonus.bonusIceberg = game.GetBonusIceberg();
+            GameInfo.Bonus.bonusCycle = game.BonusIcebergMaxTurnsToBonus;
+            GameInfo.Bonus.bonusAmount = game.BonusIcebergPenguinBonus;
+            GameInfo.Bonus.turnsLeftToBonus = game.GetBonusIceberg().TurnsLeftToBonus;
+            //bridges
+            GameInfo.Bridge.bridgeCost = game.IcebergBridgeCost;
+            GameInfo.Bridge.bridgeSpeed = game.IcebergBridgeSpeedMultiplier;
+            GameInfo.Bridge.bridgeDuration = game.IcebergMaxBridgeDuration;
         }
     }
 }

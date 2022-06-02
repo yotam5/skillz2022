@@ -8,20 +8,32 @@ namespace MyBot
     {
         ACTIVE,
         FINISHED,
-        PAUSED
+        PAUSED,
+        INITIALIZED
     }
 
     public interface IMission
     {
         void SetMissionState(MissionState state);
+
+        MissionState GetMissionState();
         SmartIceberg GetTarget();
 
-        int Benefit();
+        double Benefit();
 
         void CalculateExecutionWays();
+
+        bool CanBePerformed();
 
         List<TaskGroup> GetExecutionWays();
 
         string GetDescription();
+
+        int GetTimer();
+
+        void TimerUp();
+        void TimerDown();
+
+        void SetTimer(int value);
     }
 }

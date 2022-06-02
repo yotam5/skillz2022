@@ -15,5 +15,7 @@ namespace MyBot
 
          int PenguinsRequired();
 
+         int TaskTurns();
+
     }
 }

@@ -39,8 +39,24 @@ namespace MyBot
 
         public static class Groups
         {
-            public static HashSet<IMission> allMissions = new HashSet<IMission>();
+            public static List<IMission> allMissions = new List<IMission>();
             public static HashSet<HashSet<IMission>> allMissionGroup = new HashSet<HashSet<IMission>>();
+        }
+
+        public static class Bonus
+        {
+            public static BonusIceberg bonusIceberg = new BonusIceberg();
+            public static int turnsLeftToBonus;
+            public static int bonusCycle;
+            public static int bonusAmount;
+        }
+
+        public static class Bridge
+        {
+            public static int bridgeCost;
+            public static double bridgeSpeed;
+            public static int bridgeDuration;
+
         }
 
     }
